@@ -65,6 +65,7 @@ function row_status($x)
                     </a>
                 </div>
 
+<!--
                 <div class="col-lg-1 col-md-2 col-xs-6">
                     <a class="blightOrange white quick-button small" href="<?= site_url('quotes') ?>">
                         <i class="fa fa-heart-o"></i>
@@ -72,6 +73,7 @@ function row_status($x)
                         <p><?= lang('quotes') ?></p>
                     </a>
                 </div>
+-->
 
                 <div class="col-lg-1 col-md-2 col-xs-6">
                     <a class="bred white quick-button small" href="<?= site_url('purchases') ?>">

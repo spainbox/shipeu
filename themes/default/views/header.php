@@ -641,6 +641,7 @@
                             <?php } ?>
 
                             <?php if ($GP['quotes-index']) { ?>
+<!--
                                 <li class="mm_quotes">
                                     <a class="dropmenu" href="#"><i class="fa fa-heart-o"></i><span
                                             class="text"> <?= lang('quotes'); ?> </span> <span
@@ -656,6 +657,7 @@
                                         <?php } ?>
                                     </ul>
                                 </li>
+-->
                             <?php } ?>
 
                             <?php if ($GP['purchases-index']) { ?>
