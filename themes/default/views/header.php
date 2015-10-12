@@ -452,10 +452,12 @@
                                                 href="<?= site_url('system_settings/currencies') ?>"><i
                                                     class="fa fa-money"></i><span
                                                     class="text"> <?= lang('currencies'); ?></span></a></li>
+<!--
                                         <li id="system_settings_customer_groups"><a
                                                 href="<?= site_url('system_settings/customer_groups') ?>"><i
                                                     class="fa fa-chain"></i><span
                                                     class="text"> <?= lang('customer_groups'); ?></span></a></li>
+-->
                                         <li id="system_settings_categories"><a
                                                 href="<?= site_url('system_settings/categories') ?>"><i
                                                     class="fa fa-folder-open"></i><span
@@ -677,6 +679,7 @@
                                                         class="text"> <?= lang('add_purchase'); ?></span></a></li>
                                         <?php } ?>
                                         <?php if ($GP['purchases-expenses']) { ?>
+<!-- Expenses disabled
                                             <li id="purchases_expenses"><a class="submenu"
                                                                            href="<?= site_url('purchases/expenses'); ?>"><i
                                                         class="fa fa-dollar"></i><span
@@ -687,6 +690,7 @@
                                                                               data-target="#myModal"><i
                                                         class="fa fa-plus-circle"></i><span
                                                         class="text"> <?= lang('add_expense'); ?></span></a></li>
+-->
                                         <?php } ?>
                                     </ul>
                                 </li>
