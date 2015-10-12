@@ -217,11 +217,13 @@
                     <?php } ?>
                     <?php if ($Owner || $Admin) { ?>
                         <?php if (POS) { ?>
+<!-- POS disabled
                             <li class="dropdown hidden-xs"><a class="btn bblue tip"
                                                               title="<?= lang('list_open_registers') ?>"
                                                               data-placement="bottom"
                                                               href="<?= site_url('pos/registers') ?>"><i
                                         class="fa fa-list"></i></a></li>
+-->
                         <?php } ?>
                         <li class="dropdown hidden-xs"><a class="btn bred tip" title="<?= lang('clear_ls') ?>"
                                                           data-placement="bottom" id="clearLS" href="#"><i
@@ -287,9 +289,11 @@
                                                 class="fa fa-heart"></i><span
                                                 class="text"> <?= lang('list_sales'); ?></span></a></li>
                                     <?php if (POS) { ?>
+<!-- POS disabled
                                         <li id="pos_sales"><a class="submenu" href="<?= site_url('pos/sales'); ?>"><i
                                                     class="fa fa-heart"></i><span
                                                     class="text"> <?= lang('pos_sales'); ?></span></a></li>
+-->
                                     <?php } ?>
                                     <li id="sales_add"><a class="submenu" href="<?= site_url('sales/add'); ?>"><i
                                                 class="fa fa-plus-circle"></i><span
@@ -302,10 +306,12 @@
                                                                  href="<?= site_url('sales/deliveries'); ?>"><i
                                                 class="fa fa-truck"></i><span
                                                 class="text"> <?= lang('deliveries'); ?></span></a></li>
+<!-- Gift Cards - Disabled
                                     <li id="sales_gift_cards"><a class="submenu"
                                                                  href="<?= site_url('sales/gift_cards'); ?>"><i
                                                 class="fa fa-gift"></i><span
                                                 class="text"> <?= lang('gift_cards'); ?></span></a></li>
+-->
                                     <li id="sales_return_sales"><a class="submenu"
                                                                    href="<?= site_url('sales/return_sales'); ?>"><i
                                                 class="fa fa-reply"></i><span
@@ -313,6 +319,7 @@
                                 </ul>
                             </li>
 
+<!-- Quatations Menu - Disabled
                             <li class="mm_quotes">
                                 <a class="dropmenu" href="#"><i class="fa fa-heart-o"></i><span
                                         class="text"> <?= lang('quotes'); ?> </span> <span
@@ -327,6 +334,7 @@
                                                 class="text"> <?= lang('add_quote'); ?></span></a></li>
                                 </ul>
                             </li>
+-->
 
                             <li class="mm_purchases">
                                 <a class="dropmenu" href="#"><i class="fa fa-star"></i><span
@@ -345,6 +353,7 @@
                                                                           href="<?= site_url('purchases/purchase_by_csv'); ?>"><i
                                                 class="fa fa-plus-circle"></i><span
                                                 class="text"> <?= lang('add_purchase_by_csv'); ?></span></a></li>
+<!-- Expenses - Disabled
                                     <li id="purchases_expenses"><a class="submenu"
                                                                    href="<?= site_url('purchases/expenses'); ?>"><i
                                                 class="fa fa-dollar"></i><span
@@ -354,7 +363,8 @@
                                                                       data-toggle="modal" data-target="#myModal"><i
                                                 class="fa fa-plus-circle"></i><span
                                                 class="text"> <?= lang('add_expense'); ?></span></a></li>
-                                </ul>
+-->
+                               </ul>
                             </li>
 
                             <li class="mm_transfers">
@@ -427,9 +437,11 @@
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= lang('system_settings'); ?></span></a></li>
                                         <?php if (POS) { ?>
+<!-- POS Disabled
                                             <li id="pos_settings"><a href="<?= site_url('pos/settings') ?>"><i
                                                         class="fa fa-th-large"></i><span
                                                         class="text"> <?= lang('pos_settings'); ?></span></a></li>
+-->
                                         <?php } ?>
                                         <li id="system_settings_change_logo"><a
                                                 href="<?= site_url('system_settings/change_logo') ?>"
@@ -492,9 +504,11 @@
                                                 class="fa fa-building"></i><span
                                                 class="text"> <?= lang('warehouse_stock'); ?></span></a></li>
                                     <?php if (POS) { ?>
+<!-- POS disabled
                                         <li id="reports_register"><a href="<?= site_url('reports/register') ?>"><i
                                                     class="fa fa-th-large"></i><span
                                                     class="text"> <?= lang('register_report'); ?></span></a></li>
+-->
                                     <?php } ?>
                                     <li id="reports_quantity_alerts"><a
                                             href="<?= site_url('reports/quantity_alerts') ?>"><i
@@ -589,10 +603,12 @@
                                                     class="fa fa-heart"></i><span
                                                     class="text"> <?= lang('list_sales'); ?></span></a></li>
                                         <?php if (POS && $GP['pos-index']) { ?>
+<!-- Settings - POS Sales Menu - Disabled
                                             <li id="pos_sales"><a class="submenu"
                                                                   href="<?= site_url('pos/sales'); ?>"><i
                                                         class="fa fa-heart"></i><span
                                                         class="text"> <?= lang('pos_sales'); ?></span></a></li>
+-->
                                         <?php } ?>
                                         <?php if ($GP['sales-add']) { ?>
                                             <li id="sales_add"><a class="submenu"
@@ -607,10 +623,12 @@
                                                         class="text"> <?= lang('deliveries'); ?></span></a></li>
                                         <?php }
                                         if ($GP['sales-gift_cards']) { ?>
+<!-- Gift Cards - Disabled
                                             <li id="sales_gift_cards"><a class="submenu"
                                                                          href="<?= site_url('sales/gift_cards'); ?>"><i
                                                         class="fa fa-gift"></i><span
                                                         class="text"> <?= lang('gift_cards'); ?></span></a></li>
+-->
                                         <?php }
                                         if ($GP['sales-return_sales']) { ?>
                                             <li id="sales_return_sales"><a class="submenu"
