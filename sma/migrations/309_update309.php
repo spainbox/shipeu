@@ -7,11 +7,12 @@ class Migration_Update309 extends CI_Migration
     public function up()
     {
         // ##################################
-        // Add fields to current sma tables
+        //       Add fields to current
+        //   Stock Advanced Manager tables
         // ##################################
 
         // =============
-        // sma_companies
+        // companies
         // =============
 
         /**
@@ -23,7 +24,7 @@ class Migration_Update309 extends CI_Migration
          */
 
         // ============
-        // sma_products
+        // products
         // ============
 
         /**
@@ -32,11 +33,11 @@ class Migration_Update309 extends CI_Migration
          * cf2 = width   (ancho)
          * cf3 = height  (alto)
          * cf4 = depth   (profundidad)
-         * cf5 = service_id (default service to use when sma_service_selection.criteria_code = 2 (SKU)
+         * cf5 = service_id (default service to use when service_selection.criteria_code = 2 (SKU)
          */
 
         // =========
-        // sma_sales
+        // sales
         // =========
 
         $add = array(
@@ -50,7 +51,7 @@ class Migration_Update309 extends CI_Migration
         // ##################################
 
         // =============
-        // sma_continent
+        // continent
         // =============
 
         $this->dbforge->add_field('id');
@@ -59,7 +60,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('continent');
 
         // ===========
-        // sma_country
+        // country
         // ===========
 
         $this->dbforge->add_field('id');
@@ -69,7 +70,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('country');
 
         // =========
-        // sma_state
+        // state
         // =========
 
         $this->dbforge->add_field('id');
@@ -79,7 +80,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('state');
 
         // ========
-        // sma_city
+        // city
         // ========
 
         $this->dbforge->add_field('id');
@@ -88,7 +89,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('city');
 
         // ===========
-        // sma_courier
+        // courier
         // ===========
 
         $this->dbforge->add_field('id');
@@ -98,7 +99,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('courier');
 
         // ===========
-        // sma_service
+        // service
         // ===========
 
         $this->dbforge->add_field('id');
@@ -112,7 +113,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('service');
 
         // ===============
-        // sma_spreadsheet
+        // spreadsheet
         // ===============
 
         $this->dbforge->add_field('id');
@@ -124,7 +125,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('spreadsheet');
 
         // ===================
-        // sma_spreadsheet_row
+        // spreadsheet_row
         // ===================
 
         $this->dbforge->add_field('id');
@@ -159,7 +160,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('spreadsheet_row');
 
         // ===============
-        // sma_picking_fee
+        // picking_fee
         // ===============
 
         $this->dbforge->add_field('id');
@@ -169,7 +170,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('picking_fee');
 
         // =====================
-        // sma_service_selection
+        // service_selection
         // =====================
 
         $this->dbforge->add_field('id');
@@ -183,7 +184,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('service_selection');
 
         // ========
-        // sma_zone
+        // zone
         // ========
 
         $this->dbforge->add_field('id');
@@ -193,7 +194,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('zone');
 
         // =============
-        // sma_zone_item
+        // zone_item
         // =============
 
         $this->dbforge->add_field('id');
@@ -203,7 +204,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->create_table('zone_item');
 
         // ============
-        // sma_zone_fee
+        // zone_fee
         // ============
 
         $this->dbforge->add_field('id');
