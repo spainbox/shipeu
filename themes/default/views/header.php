@@ -833,6 +833,10 @@
                     <div class="col-sm-12 col-md-12">
                         <ul class="breadcrumb">
                             <?php
+                            if (!isset($bc)) {
+                            	// Inject Grosery CRUD breadcrumbs
+                                $bc = $this->data['bc'];
+                            }
                             foreach ($bc as $b) {
                                 if ($b['link'] === '#') {
                                     echo '<li class="active">' . $b['page'] . '</li>';
