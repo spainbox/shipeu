@@ -28,7 +28,6 @@ class system_settings extends MY_Controller
 
     function index()
     {
-
         $this->form_validation->set_rules('site_name', lang('site_name'), 'trim|required');
         $this->form_validation->set_rules('dateformat', lang('dateformat'), 'trim|required');
         $this->form_validation->set_rules('timezone', lang('timezone'), 'trim|required');
@@ -358,6 +357,10 @@ class system_settings extends MY_Controller
 
     function updates()
     {
+        // Automatically apply any new database migration
+        $this->load->library('migration');
+        $this->migration->latest();
+
         if (DEMO) {
             $this->session->set_flashdata('warning', lang('disabled_in_demo'));
             redirect($_SERVER["HTTP_REFERER"]);
