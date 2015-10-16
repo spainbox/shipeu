@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Grosery extends MY_Controller
+class Shipeu extends MY_Controller
 {
     function __construct()
     {
@@ -331,7 +331,7 @@ class Grosery extends MY_Controller
             'page' => 'Home',
         ];
         $this->bc[] = [
-            'link' => 'grosery/' . $actionName,
+            'link' => 'shipeu/' . $actionName,
             'page' => $linkName,
         ];
     }
@@ -348,7 +348,7 @@ class Grosery extends MY_Controller
         $this->data['bc'] = $this->bc; // SMA Breadcrumb
 
         $meta = array('page_title' => $pageName);
-        $this->page_construct('grosery/index', $meta, $this->data);
+        $this->page_construct('shipeu/index', $meta, $this->data);
     }
 
 }

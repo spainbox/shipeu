@@ -492,47 +492,47 @@
                                                     class="text"> <?= lang('updates'); ?></span></a></li>
 <hr />
                                         <li id="system_settings_continents"><a
-                                                href="<?= site_url('grosery/continents') ?>"><i
+                                                href="<?= site_url('shipeu/continents') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Continents"; ?></span></a></li>
                                         <li id="system_settings_countries"><a
-                                                href="<?= site_url('grosery/countries') ?>"><i
+                                                href="<?= site_url('shipeu/countries') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Countries"; ?></span></a></li>
                                         <li id="system_settings_states"><a
-                                                href="<?= site_url('grosery/states') ?>"><i
+                                                href="<?= site_url('shipeu/states') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "States"; ?></span></a></li>
                                         <li id="system_settings_cities"><a
-                                                href="<?= site_url('grosery/cities') ?>"><i
+                                                href="<?= site_url('shipeu/cities') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Cities"; ?></span></a></li>
                                         <li id="system_settings_couriers"><a
-                                                href="<?= site_url('grosery/couriers') ?>"><i
+                                                href="<?= site_url('shipeu/couriers') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Couriers"; ?></span></a></li>
                                         <li id="system_settings_services"><a
-                                                href="<?= site_url('grosery/services') ?>"><i
+                                                href="<?= site_url('shipeu/services') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Services"; ?></span></a></li>
                                         <li id="system_settings_pickingfees"><a
-                                                href="<?= site_url('grosery/pickingFees') ?>"><i
+                                                href="<?= site_url('shipeu/pickingFees') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Picking Fees"; ?></span></a></li>
                                         <li id="system_settings_serviceselection"><a
-                                                href="<?= site_url('grosery/servicesSelections') ?>"><i
+                                                href="<?= site_url('shipeu/servicesSelections') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Services Selections"; ?></span></a></li>
                                         <li id="system_settings_zones"><a
-                                                href="<?= site_url('grosery/zones') ?>"><i
+                                                href="<?= site_url('shipeu/zones') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Zones"; ?></span></a></li>
                                         <li id="system_settings_zoneitems"><a
-                                                href="<?= site_url('grosery/zoneItems') ?>"><i
+                                                href="<?= site_url('shipeu/zoneItems') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Zone Items"; ?></span></a></li>
                                         <li id="system_settings_zonefees"><a
-                                                href="<?= site_url('grosery/zoneFees') ?>"><i
+                                                href="<?= site_url('shipeu/zoneFees') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= "Zone Fees"; ?></span></a></li>
                                     </ul>
