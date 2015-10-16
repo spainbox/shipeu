@@ -30,6 +30,8 @@ class Shipeu extends MY_Controller
 
     public function continents()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Continents';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -53,6 +55,8 @@ class Shipeu extends MY_Controller
 
     public function countries()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Countries';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -79,6 +83,8 @@ class Shipeu extends MY_Controller
 
     public function states()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'States';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -105,6 +111,8 @@ class Shipeu extends MY_Controller
 
     public function cities()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Cities';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -131,6 +139,8 @@ class Shipeu extends MY_Controller
 
     public function couriers()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Couriers';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -154,6 +164,8 @@ class Shipeu extends MY_Controller
 
     public function services()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Services';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -183,6 +195,8 @@ class Shipeu extends MY_Controller
 
     public function pickingFees()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Picking Fees';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -206,6 +220,8 @@ class Shipeu extends MY_Controller
 
     public function servicesSelections()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Services Selections';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -241,6 +257,8 @@ class Shipeu extends MY_Controller
 
     public function zones()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Zones';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -267,6 +285,8 @@ class Shipeu extends MY_Controller
 
     public function zoneItems()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Zone Items';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -299,6 +319,8 @@ class Shipeu extends MY_Controller
 
     public function zoneFees()
     {
+        $this->sma->checkPermissions();
+
         $pageTitle = 'Zone Fees';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
