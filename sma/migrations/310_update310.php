@@ -6,6 +6,40 @@ class Migration_Update310 extends CI_Migration
     {
         // https://ellislab.com/codeigniter/user-guide/database/helpers.html
 
+        // -------------------------------------------
+        // Define fee methods used on fee spreadsheets
+        // -------------------------------------------
+        $this->db->insert('fee_method', ['code' => 'total-price', 'name' => 'Total Price',
+            'description' => 'Each weight on the spreadsheet means the maximum weight to apply that fee. Indicated price on that row is the *total* price']);
+
+        $this->db->insert('fee_method', ['code' => 'per-kg-price', 'name' => 'Per Kg Price',
+            'description' => 'Each weight on the spreadsheet means the maximum weight to apply that fee. Indicated price on that row is the price *per kg*']);
+
+        $this->db->insert('fee_method', ['code' => 'chunk-weight', 'name' => 'Chunk Weight',
+            'description' => 'Each weight is the "chunk" weight ("to each 100 kg") to sum the price indicated on the same row']);
+
+        // -------------------------------------------
+        // Define courier services selection methods
+        // -------------------------------------------
+        $this->db->insert('selection_method', ['code' => 'urgent', 'name' => 'Urgent Delivery',
+            'description' => 'Delivery will be assigned to the faster courier service']);
+
+        $this->db->insert('selection_method', ['code' => 'sku', 'name' => 'Product',
+            'description' => 'Delivery will be assigned to the default service configured for each product']);
+
+        $this->db->insert('selection_method', ['code' => 'price', 'name' => 'Price',
+            'description' => 'Delivery will be assigned to the cheapest service']);
+
+        $this->db->insert('selection_method', ['code' => 'postal', 'name' => 'Postal',
+            'description' => 'Delivery will be assigned to the service which has indicated that postal code']);
+
+        $this->db->insert('selection_method', ['code' => 'weight', 'name' => 'Weight',
+            'description' => 'Delivery will be assigned to the service which supports deliveries of such weight']);
+
+        // -----------------
+        // Define Continents
+        // -----------------
+
         $this->db->insert('continent', ['code' => 'a', 'name' => 'Africa']);
         $this->db->insert('continent', ['code' => 'e', 'name' => 'Europe']);
         $this->db->insert('continent', ['code' => 'i', 'name' => 'Asia']);

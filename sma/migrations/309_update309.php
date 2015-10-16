@@ -108,9 +108,29 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("description varchar(255) NULL");
         $this->dbforge->add_field("delivery_days_min int NOT NULL");  // Example: If delivery time is 1 to 3 days, 1 will be added here
         $this->dbforge->add_field("delivery_days_max int NOT NULL");  // Example: If delivery time is 1 to 3 days, 3 will be added here
-        $this->dbforge->add_field("fee_method int NOT NULL");  // indicates the meaning of the data entered to the zone_fee table
+        $this->dbforge->add_field("fee_method_id int NOT NULL");  // indicates the meaning of the data entered to the zone_fee table
         $this->dbforge->add_field("courier_id int NOT NULL");
         $this->dbforge->create_table('service');
+
+        // ==========
+        // fee_method
+        // ==========
+
+        $this->dbforge->add_field('id');
+        $this->dbforge->add_field("code varchar(100) NOT NULL");
+        $this->dbforge->add_field("name varchar(100) NOT NULL");
+        $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->create_table('fee_method');
+
+        // ================
+        // selection_method
+        // ================
+
+        $this->dbforge->add_field('id');
+        $this->dbforge->add_field("code varchar(100) NOT NULL");
+        $this->dbforge->add_field("name varchar(100) NOT NULL");
+        $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->create_table('selection_method');
 
         // ===============
         // spreadsheet
@@ -175,7 +195,7 @@ class Migration_Update309 extends CI_Migration
 
         $this->dbforge->add_field('id');
         $this->dbforge->add_field("company_id int NOT NULL");
-        $this->dbforge->add_field("criteria_type int NOT NULL"); // 1=Urgent 2= SKU 3=Weight 4=Price 5=Postal Code
+        $this->dbforge->add_field("selection_method_id int NOT NULL");
         $this->dbforge->add_field("priority int NOT NULL");
         $this->dbforge->add_field("country_id int NULL");  // Only used on type 5 - Postal Code
         $this->dbforge->add_field("range_start VARCHAR(50) NULL");  // For Weight, Price and Postal Code
@@ -213,12 +233,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("price int NULL");  // See notes for details
         $this->dbforge->create_table('zone_fee');
 
-        // NOTE: The meaning of "weight" and "price" depends on the "fee_method" configured on sma_service table.
-        // Supported methods are:
-        //     "1-FinalPrice" - zone_fee.weight is the maximum weight allowed to apply the whole zone_fee.price value
-        //     "2-PerKgPrice" - zone_fee.weight is the maximum weight allowed to apply the zone_fee.price value *per each kg*
-        //     "3-ChunkWeight" - zone_fee.weight is the "chunk" weight ("to each 100 kg") to sum the zone_fee.price value.
-        // In any case, the special value 99999 is used on weight for "unlimited"
+        // NOTE: The meaning of "weight" and "price" depends on the "service.fee_method_id" selected (see fee_method table for details)
     }
 
     public function down()
