@@ -2216,7 +2216,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 	{
 		$value = !is_string($value) ? '' : str_replace('"',"&quot;",$value);
 
-		$extra_attributes = '';
+		$extra_attributes = 'style="height:30px"';
 		if(!empty($field_info->db_max_length))
 			$extra_attributes .= "maxlength='{$field_info->db_max_length}'";
 		$input = "<input id='field-{$field_info->name}' class='form-control' name='{$field_info->name}' type='text' value=\"$value\" $extra_attributes />";
