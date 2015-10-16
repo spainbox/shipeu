@@ -380,7 +380,14 @@ if (!empty($variants)) {
                         <div class="col-md-4">
                             <div class="form-group all">
                                 <?= lang('pcf5', 'cf5') ?>
-                                <?= form_input('cf5', (isset($_POST['cf5']) ? $_POST['cf5'] : ($product ? $product->cf5 : '')), 'class="form-control tip" id="cf5"') ?>
+                                <?php
+                                    $svc[''] = '';
+                                    $services=$this->db->query("SELECT id, name FROM service")->result();
+                                    foreach ($services as $service) {
+                                        $svc[$service->id] = $service->name;
+                                    }
+                                ?>
+                                <?= form_dropdown('cf5', $svc, (isset($_POST['cf5']) ? $_POST['cf5'] : ($product ? $product->cf5 : '')), 'class="form-control input-tip select" id="cf5"') ?>
                             </div>
                         </div>
 
