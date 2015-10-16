@@ -2182,7 +2182,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 	{
 		$this->set_js_lib($this->default_javascript_path.'/jquery_plugins/jquery.numeric.min.js');
 		$this->set_js_config($this->default_javascript_path.'/jquery_plugins/config/jquery.numeric.config.js');
-		$extra_attributes = '';
+		$extra_attributes = 'style="height:30px"';
 		if(!empty($field_info->db_max_length))
 			$extra_attributes .= "maxlength='{$field_info->db_max_length}'";
 		$input = "<input id='field-{$field_info->name}' name='{$field_info->name}' type='text' value='$value' class='numeric form-control' $extra_attributes />";
@@ -2316,7 +2316,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 	{
 		$value = !is_string($value) ? '' : $value;
 
-		$extra_attributes = '';
+		$extra_attributes = 'style="height:30px"';
 		if(!empty($field_info->db_max_length))
 			$extra_attributes .= "maxlength='{$field_info->db_max_length}'";
 		$input = "<input id='field-{$field_info->name}' class='form-control' name='{$field_info->name}' type='password' value='$value' $extra_attributes />";
@@ -2365,7 +2365,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 
 		$select_title = str_replace('{field_display_as}',$field_info->display_as,$this->l('set_relation_title'));
 
-		$input = "<select id='field-{$field_info->name}' name='{$field_info->name}' class='chosen-select' data-placeholder='".$select_title."'>";
+		$input = "<select id='field-{$field_info->name}' name='{$field_info->name}' class='chosen-select' data-placeholder='".$select_title."'" . 'style="height:30px"' . ">";
 		$options = array('' => '') + $field_info->extras;
 		foreach($options as $option_value => $option_label)
 		{
@@ -2477,7 +2477,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$this->_inline_js("var ajax_relation_url = '".$this->getAjaxRelationUrl()."';\n");
 
 		$select_title = str_replace('{field_display_as}',$field_info->display_as,$this->l('set_relation_title'));
-		$input = "<select id='field-{$field_info->name}'  name='{$field_info->name}' class='$ajax_or_not_class' data-placeholder='$select_title' style='width:300px'>";
+		$input = "<select id='field-{$field_info->name}'  name='{$field_info->name}' class='$ajax_or_not_class' data-placeholder='$select_title' style='width:300px;height: 30px'>";
 		$input .= "<option value=''></option>";
 
 		if(!$using_ajax)
