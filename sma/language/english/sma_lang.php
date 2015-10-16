@@ -25,18 +25,18 @@
 * For support email contact@tecdiary.com Thank you!
 */
 
-$lang['bcf1']                           = "Biller Custom Field 1";
-$lang['bcf2']                           = "Biller Custom Field 2";
-$lang['bcf3']                           = "Biller Custom Field 3";
-$lang['bcf4']                           = "Biller Custom Field 4";
-$lang['bcf5']                           = "Biller Custom Field 5";
-$lang['bcf6']                           = "Biller Custom Field 6";
-$lang['pcf1']                           = "Product Custom Field 1";
-$lang['pcf2']                           = "Product Custom Field 2";
-$lang['pcf3']                           = "Product Custom Field 3";
-$lang['pcf4']                           = "Product Custom Field 4";
-$lang['pcf5']                           = "Product Custom Field 5";
-$lang['pcf6']                           = "Product Custom Field 6";
+$lang['bcf1']                           = "Cash on delivery fee";
+$lang['bcf2']                           = "Storage per kg daily fee";
+$lang['bcf3']                           = "Multiple shipment per sku fee";
+$lang['bcf4']                           = "Shipment margin";
+$lang['bcf5']                           = "Unused";
+$lang['bcf6']                           = "Unused";
+$lang['pcf1']                           = "Weight";
+$lang['pcf2']                           = "Width";
+$lang['pcf3']                           = "Height";
+$lang['pcf4']                           = "Depth";
+$lang['pcf5']                           = "Preferred Service";
+$lang['pcf6']                           = "Unused";
 $lang['ccf1']                           = "Customer Custom Field 1";
 $lang['ccf2']                           = "Customer Custom Field 2";
 $lang['ccf3']                           = "Customer Custom Field 3";
