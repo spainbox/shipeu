@@ -6,9 +6,10 @@ class Migration_Update310 extends CI_Migration
     {
         // https://ellislab.com/codeigniter/user-guide/database/helpers.html
 
-        // -------------------------------------------
+        // ----------------------------------------------------------------------
         // Define fee methods used on fee spreadsheets
-        // -------------------------------------------
+        // NOTE: For version 1 (national), only "total-price" method will be used
+        // ----------------------------------------------------------------------
         $this->db->insert('fee_method', ['code' => 'total-price', 'name' => 'Total Price',
             'description' => 'Each weight on the spreadsheet means the maximum weight to apply that fee. Indicated price on that row is the *total* price']);
 

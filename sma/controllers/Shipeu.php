@@ -176,13 +176,13 @@ class Shipeu extends MY_Controller
             $crud->set_table('service');
             $crud->set_subject($pageTitle);
             $crud->required_fields('code, name, courier_id');
-            $crud->columns('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'fee_method_id', 'description');
+            $crud->columns('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'description');
+
+            // On version 1, fee_method is not used, all spreadsheets use total-price method (not listed here)
+            $crud->fields('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'description');
 
             $crud->set_relation('courier_id','courier','{name}');
             $crud->display_as('courier_id','Courier');
-
-            $crud->set_relation('fee_method_id','fee_method','{name}');
-            $crud->display_as('fee_method_id','Fee Method');
 
             $output = $crud->render();
 
