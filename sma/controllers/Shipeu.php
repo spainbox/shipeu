@@ -125,8 +125,10 @@ class Shipeu extends MY_Controller
             $crud->required_fields('name', 'state_id');
             $crud->columns('name', 'state_id');
 
-            $crud->set_relation('state_id','state','{code} - {name}');
-            $crud->display_as('state_id','State');
+            $crud->set_relation('state_id','state', '{code} - {name}');
+            $crud->display_as('state_id', 'State');
+
+//            $crud->callback_field('state_id', array($this, '_callback_state_name'));
 
             $output = $crud->render();
 
@@ -135,6 +137,11 @@ class Shipeu extends MY_Controller
         } catch (Exception $e) {
             show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
         }
+    }
+
+    public function _callback_state_name($value, $row)
+    {
+        return 'ESTADO ' . $value;
     }
 
     public function couriers()
@@ -178,6 +185,9 @@ class Shipeu extends MY_Controller
             $crud->required_fields('code', 'name', 'courier_id');
             $crud->columns('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'description');
 
+            $crud->set_rules('delivery_days_min','Delivery Days Min',['integer', 'required']);
+            $crud->set_rules('delivery_days_max','Delivery Days Max',['integer', 'required']);
+
             // On version 1, fee_method is not used, all spreadsheets use total-price method (not listed here)
             $crud->fields('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'description');
 
@@ -206,8 +216,10 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('picking_fee');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('weight_from', 'weight_to', 'fee');
+            $crud->required_fields('weight_from', 'weight_to');
             $crud->columns('weight_from', 'weight_to', 'fee');
+
+            $crud->set_rules('fee','Fee',['decimal', 'required']);
 
             $output = $crud->render();
 
@@ -231,8 +243,10 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('service_selection');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('company_id', 'priority', 'selection_method_id','service_id');
+            $crud->required_fields('company_id', 'selection_method_id','service_id');
             $crud->columns('company_id', 'priority', 'selection_method_id', 'country_id', 'range_start', 'range_end', 'service_id');
+
+            $crud->set_rules('priority','Priority Number', ['integer', 'required']);
 
             $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filter by "Biller" companies
             $crud->display_as('company_id','Company');
@@ -330,8 +344,11 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('zone_fee');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('zone_id', 'weight', 'price');
+            $crud->required_fields('zone_id');
             $crud->columns('zone_id', 'weight', 'price');
+
+            $crud->set_rules('weight','Weight',['decimal', 'required']);
+            $crud->set_rules('price','Price',['decimal', 'required']);
 
             $crud->set_relation('zone_id','zone','{name}');
             $crud->display_as('zone_id','Zone');
@@ -358,8 +375,10 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('shipping_margin');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('company_id', 'service_id', 'cost_margin');
+            $crud->required_fields('company_id', 'service_id');
             $crud->columns('company_id', 'service_id', 'cost_margin');
+
+            $crud->set_rules('cost_margin','Cost Shipping Margin',['decimal', 'required']);
 
             $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filter by "Biller" companies
             $crud->display_as('company_id','Company');
