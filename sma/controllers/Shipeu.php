@@ -234,7 +234,7 @@ class Shipeu extends MY_Controller
             $crud->required_fields('company_id, priority, selection_method_id, country_id, range_start, range_end, service_id');
             $crud->columns('company_id', 'priority', 'selection_method_id', 'country_id', 'range_start', 'range_end', 'service_id');
 
-            $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filtramos compañias "Biller"
+            $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filter by "Biller" companies
             $crud->display_as('company_id','Company');
 
             $crud->set_relation('selection_method_id','selection_method','{name}');
@@ -335,6 +335,37 @@ class Shipeu extends MY_Controller
 
             $crud->set_relation('zone_id','zone','{name}');
             $crud->display_as('zone_id','Zone');
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+    }
+
+    public function shippingMargins()
+    {
+        $this->sma->checkPermissions();
+
+        $pageTitle = 'Shipping Cost Margins';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('shipping_margin');
+            $crud->set_subject($pageTitle);
+            $crud->required_fields('company_id, service_id, cost_margin');
+            $crud->columns('company_id', 'service_id', 'cost_margin');
+
+            $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filter by "Biller" companies
+            $crud->display_as('company_id','Company');
+
+            $crud->set_relation('service_id','service','{name}');
+            $crud->display_as('service_id','Service');
 
             $output = $crud->render();
 

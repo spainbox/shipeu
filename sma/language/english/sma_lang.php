@@ -28,7 +28,7 @@
 $lang['bcf1']                           = "Cash on delivery fee";
 $lang['bcf2']                           = "Storage per kg daily fee";
 $lang['bcf3']                           = "Multiple shipment per sku fee";
-$lang['bcf4']                           = "Shipping cost margin";
+$lang['bcf4']                           = "Unused";
 $lang['bcf5']                           = "Unused";
 $lang['bcf6']                           = "Unused";
 $lang['pcf1']                           = "Weight";

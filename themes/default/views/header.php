@@ -519,6 +519,10 @@
                                                 href="<?= site_url('shipeu/pickingFees') ?>"><i
                                                     class="fa fa-euro"></i><span
                                                     class="text"> <?= "Picking Fees"; ?></span></a></li>
+                                        <li id="system_settings_shippingmargins"><a
+                                                href="<?= site_url('shipeu/shippingMargins') ?>"><i
+                                                    class="fa fa-plus"></i><span
+                                                    class="text"> <?= "Shipping Margins"; ?></span></a></li>
                                         <li id="system_settings_serviceselection"><a
                                                 href="<?= site_url('shipeu/servicesSelections') ?>"><i
                                                     class="fa fa-list-ol"></i><span
