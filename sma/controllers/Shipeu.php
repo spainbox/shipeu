@@ -41,8 +41,8 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('continent');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('code, name');
             $crud->columns('code', 'name');
+            $crud->required_fields('code', 'name');
 
             $output = $crud->render();
 
@@ -66,7 +66,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('country');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('code, name, continent_id');
+            $crud->required_fields('code', 'name', 'continent_id');
             $crud->columns('code', 'name', 'continent_id');
 
             $crud->set_relation('continent_id','continent','{name}');
@@ -94,7 +94,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('state');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('code, name, country_id');
+            $crud->required_fields('code', 'name', 'country_id');
             $crud->columns('code', 'name', 'country_id');
 
             $crud->set_relation('country_id','country','{code} - {name}');
@@ -122,7 +122,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('city');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('name, state_id');
+            $crud->required_fields('name', 'state_id');
             $crud->columns('name', 'state_id');
 
             $crud->set_relation('state_id','state','{code} - {name}');
@@ -150,7 +150,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('courier');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('code, name, website');
+            $crud->required_fields('code', 'name');
             $crud->columns('code', 'name', 'website');
 
             $output = $crud->render();
@@ -175,7 +175,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('service');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('code, name, courier_id');
+            $crud->required_fields('code', 'name', 'courier_id');
             $crud->columns('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'description');
 
             // On version 1, fee_method is not used, all spreadsheets use total-price method (not listed here)
@@ -206,7 +206,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('picking_fee');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('weight_from, weight_to, fee');
+            $crud->required_fields('weight_from', 'weight_to', 'fee');
             $crud->columns('weight_from', 'weight_to', 'fee');
 
             $output = $crud->render();
@@ -231,7 +231,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('service_selection');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('company_id, priority, selection_method_id, country_id, range_start, range_end, service_id');
+            $crud->required_fields('company_id', 'priority', 'selection_method_id','service_id');
             $crud->columns('company_id', 'priority', 'selection_method_id', 'country_id', 'range_start', 'range_end', 'service_id');
 
             $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filter by "Biller" companies
@@ -268,7 +268,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('zone');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('code, name, service_id');
+            $crud->required_fields('code', 'name', 'service_id');
             $crud->columns('code', 'name', 'service_id');
 
             $crud->set_relation('service_id','service','{name}');
@@ -296,7 +296,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('zone_item');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('zone_id, country_id, state_id');
+            $crud->required_fields('zone_id');
             $crud->columns('zone_id', 'country_id', 'state_id');
 
             $crud->set_relation('zone_id','zone','{name}');
@@ -330,7 +330,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('zone_fee');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('zone_id, weight, price');
+            $crud->required_fields('zone_id', 'weight', 'price');
             $crud->columns('zone_id', 'weight', 'price');
 
             $crud->set_relation('zone_id','zone','{name}');
@@ -358,7 +358,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('shipping_margin');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('company_id, service_id, cost_margin');
+            $crud->required_fields('company_id', 'service_id', 'cost_margin');
             $crud->columns('company_id', 'service_id', 'cost_margin');
 
             $crud->set_relation('company_id','companies','{company}', ['group_name' => 'biller']);  // Filter by "Biller" companies
