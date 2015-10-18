@@ -758,7 +758,11 @@ a#main-menu-act i:hover {
 .taskProgress { }
 .nav-collapse { }
 .dropmenu { }
-.submenu { }
+.submenu {
+    position: absolute;
+    left: 20px;
+    width: 250px;
+}
 .sidebar-nav > ul {
     margin: -9px -25px;
     border: none;
