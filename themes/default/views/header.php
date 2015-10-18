@@ -433,7 +433,7 @@
                                             class="text"> <?= lang('settings'); ?> </span> <span
                                             class="chevron closed"></span></a>
                                     <ul>
-                                        <li id="system_settings_index"><a href="<?= site_url('system_settings') ?>"><i
+                                        <li id="system_settings_index"><a class="submenu" href="<?= site_url('system_settings') ?>"><i
                                                     class="fa fa-cog"></i><span
                                                     class="text"> <?= lang('system_settings'); ?></span></a></li>
                                         <?php if (POS) { ?>
@@ -443,12 +443,12 @@
                                                         class="text"> <?= lang('pos_settings'); ?></span></a></li>
 -->
                                         <?php } ?>
-                                        <li id="system_settings_change_logo"><a
+                                        <li id="system_settings_change_logo"><a class="submenu"
                                                 href="<?= site_url('system_settings/change_logo') ?>"
                                                 data-toggle="modal" data-target="#myModal"><i
                                                     class="fa fa-upload"></i><span
                                                     class="text"> <?= lang('change_logo'); ?></span></a></li>
-                                        <li id="system_settings_currencies"><a
+                                        <li id="system_settings_currencies"><a class="submenu"
                                                 href="<?= site_url('system_settings/currencies') ?>"><i
                                                     class="fa fa-money"></i><span
                                                     class="text"> <?= lang('currencies'); ?></span></a></li>
@@ -458,35 +458,35 @@
                                                     class="fa fa-chain"></i><span
                                                     class="text"> <?= lang('customer_groups'); ?></span></a></li>
 -->
-                                        <li id="system_settings_categories"><a
+                                        <li id="system_settings_categories"><a class="submenu"
                                                 href="<?= site_url('system_settings/categories') ?>"><i
                                                     class="fa fa-folder-open"></i><span
                                                     class="text"> <?= lang('categories'); ?></span></a></li>
-                                        <li id="system_settings_variants"><a
+                                        <li id="system_settings_variants"><a class="submenu"
                                                 href="<?= site_url('system_settings/variants') ?>"><i
                                                     class="fa fa-tags"></i><span
                                                     class="text"> <?= lang('variants'); ?></span></a></li>
-                                        <li id="system_settings_tax_rates"><a
+                                        <li id="system_settings_tax_rates"><a class="submenu"
                                                 href="<?= site_url('system_settings/tax_rates') ?>"><i
                                                     class="fa fa-plus-circle"></i><span
                                                     class="text"> <?= lang('tax_rates'); ?></span></a></li>
-                                        <li id="system_settings_warehouses"><a
+                                        <li id="system_settings_warehouses"><a class="submenu"
                                                 href="<?= site_url('system_settings/warehouses') ?>"><i
                                                     class="fa fa-building-o"></i><span
                                                     class="text"> <?= lang('warehouses'); ?></span></a></li>
-                                        <li id="system_settings_template"><a
+                                        <li id="system_settings_template"><a class="submenu"
                                                 href="<?= site_url('system_settings/email_templates') ?>"><i
                                                     class="fa fa-envelope"></i><span
                                                     class="text"> <?= lang('email_templates'); ?></span></a></li>
-                                        <li id="system_settings_user_groups"><a
+                                        <li id="system_settings_user_groups"><a class="submenu"
                                                 href="<?= site_url('system_settings/user_groups') ?>"><i
                                                     class="fa fa-key"></i><span
                                                     class="text"> <?= lang('group_permissions'); ?></span></a></li>
-                                        <li id="system_settings_backups"><a
+                                        <li id="system_settings_backups"><a class="submenu"
                                                 href="<?= site_url('system_settings/backups') ?>"><i
                                                     class="fa fa-database"></i><span
                                                     class="text"> <?= lang('backups'); ?></span></a></li>
-                                        <li id="system_settings_updates"><a
+                                        <li id="system_settings_updates"><a class="submenu"
                                                 href="<?= site_url('system_settings/updates') ?>"><i
                                                     class="fa fa-upload"></i><span
                                                     class="text"> <?= lang('updates'); ?></span></a></li>
