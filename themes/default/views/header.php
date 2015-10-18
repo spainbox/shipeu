@@ -490,7 +490,10 @@
                                                 href="<?= site_url('system_settings/updates') ?>"><i
                                                     class="fa fa-upload"></i><span
                                                     class="text"> <?= lang('updates'); ?></span></a></li>
-<hr />
+
+                                    </ul>
+                                </li>
+
                             <li class="mm_geograhic">
                                 <a class="dropmenu" href="#"><i class="fa fa-globe"></i><span
                                         class="text"> <?= "Geo Config"; ?> </span> <span
@@ -566,10 +569,7 @@
                                 </ul>
                             </li>
 
-                                    </ul>
-                                </li>
                             <?php } ?>
-<hr />
                             <li class="mm_reports">
                                 <a class="dropmenu" href="#"><i class="fa fa-bar-chart-o"></i><span
                                         class="text"> <?= lang('reports'); ?> </span> <span
