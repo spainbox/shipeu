@@ -424,7 +424,7 @@
                                                 class="text"> <?= lang('add_supplier'); ?></span></a></li>
                                 </ul>
                             </li>
-                            <li class="mm_notifications"><a class="submenu" href="<?= site_url('notifications'); ?>"><i
+                            <li class="mm_notifications"><a href="<?= site_url('notifications'); ?>"><i
                                         class="fa fa-info-circle"></i><span
                                         class="text"> <?= lang('notifications'); ?></span></a></li>
                             <?php if ($Owner) { ?>
@@ -491,54 +491,81 @@
                                                     class="fa fa-upload"></i><span
                                                     class="text"> <?= lang('updates'); ?></span></a></li>
 <hr />
-                                        <li id="system_settings_continents"><a
+                            <li class="mm_geograhic">
+                                <a class="dropmenu" href="#"><i class="fa fa-globe"></i><span
+                                        class="text"> <?= "Geo Config"; ?> </span> <span
+                                        class="chevron closed"></span></a>
+                                <ul>
+
+                                        <li id="system_settings_continents"><a class="submenu"
                                                 href="<?= site_url('shipeu/continents') ?>"><i
-                                                    class="fa fa-globe"></i><span
-                                                    class="text"> <?= "Continents"; ?></span></a></li>
-                                        <li id="system_settings_countries"><a
+                                                    class="fa fa-globe"></i>
+                                                     <?= "Continents"; ?></span></a></li>
+                                        <li id="system_settings_countries"><a class="submenu"
                                                 href="<?= site_url('shipeu/countries') ?>"><i
                                                     class="fa fa-flag"></i><span
                                                     class="text"> <?= "Countries"; ?></span></a></li>
-                                        <li id="system_settings_states"><a
+                                        <li id="system_settings_states"><a class="submenu"
                                                 href="<?= site_url('shipeu/states') ?>"><i
                                                     class="fa fa-flag-o"></i><span
                                                     class="text"> <?= "States"; ?></span></a></li>
-                                        <li id="system_settings_cities"><a
+                                        <li id="system_settings_cities"><a class="submenu"
                                                 href="<?= site_url('shipeu/cities') ?>"><i
                                                     class="fa fa-bank"></i><span
                                                     class="text"> <?= "Cities"; ?></span></a></li>
-                                        <li id="system_settings_couriers"><a
+                                </ul>
+                            </li>
+
+                            <li class="mm_couriers">
+                                <a class="dropmenu" href="#"><i class="fa fa-amazon"></i><span
+                                        class="text"> <?= "Couriers"; ?> </span> <span
+                                        class="chevron closed"></span></a>
+                                <ul>
+
+                                        <li id="system_settings_couriers"><a class="submenu"
                                                 href="<?= site_url('shipeu/couriers') ?>"><i
                                                     class="fa fa-amazon"></i><span
                                                     class="text"> <?= "Couriers"; ?></span></a></li>
-                                        <li id="system_settings_services"><a
+                                        <li id="system_settings_services"><a class="submenu"
                                                 href="<?= site_url('shipeu/services') ?>"><i
                                                     class="fa fa-truck"></i><span
                                                     class="text"> <?= "Services"; ?></span></a></li>
-                                        <li id="system_settings_pickingfees"><a
+                                        <li id="system_settings_pickingfees"><a class="submenu"
                                                 href="<?= site_url('shipeu/pickingFees') ?>"><i
                                                     class="fa fa-euro"></i><span
                                                     class="text"> <?= "Picking Fees"; ?></span></a></li>
-                                        <li id="system_settings_shippingmargins"><a
+                                        <li id="system_settings_shippingmargins"><a class="submenu"
                                                 href="<?= site_url('shipeu/shippingMargins') ?>"><i
                                                     class="fa fa-plus"></i><span
                                                     class="text"> <?= "Shipping Margins"; ?></span></a></li>
-                                        <li id="system_settings_serviceselection"><a
+                                        <li id="system_settings_serviceselection"><a class="submenu"
                                                 href="<?= site_url('shipeu/servicesSelections') ?>"><i
                                                     class="fa fa-list-ol"></i><span
                                                     class="text"> <?= "Services Selections"; ?></span></a></li>
-                                        <li id="system_settings_zones"><a
+                                </ul>
+                            </li>
+
+                            <li class="mm_zones">
+                                <a class="dropmenu" href="#"><i class="fa fa-map-o"></i><span
+                                        class="text"> <?= "Zones"; ?> </span> <span
+                                        class="chevron closed"></span></a>
+                                <ul>
+
+                                        <li id="system_settings_zones"><a class="submenu"
                                                 href="<?= site_url('shipeu/zones') ?>"><i
                                                     class="fa fa-map-o"></i><span
                                                     class="text"> <?= "Zones"; ?></span></a></li>
-                                        <li id="system_settings_zoneitems"><a
+                                        <li id="system_settings_zoneitems"><a class="submenu"
                                                 href="<?= site_url('shipeu/zoneItems') ?>"><i
                                                     class="fa fa-sitemap"></i><span
                                                     class="text"> <?= "Zone Items"; ?></span></a></li>
-                                        <li id="system_settings_zonefees"><a
+                                        <li id="system_settings_zonefees"><a class="submenu"
                                                 href="<?= site_url('shipeu/zoneFees') ?>"><i
                                                     class="fa fa-money"></i><span
                                                     class="text"> <?= "Zone Fees"; ?></span></a></li>
+                                </ul>
+                            </li>
+
                                     </ul>
                                 </li>
                             <?php } ?>
