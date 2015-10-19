@@ -533,6 +533,10 @@
                                                 href="<?= site_url('shipeu/services') ?>"><i
                                                     class="fa fa-truck"></i><span
                                                     class="text"> <?= "Services"; ?></span></a></li>
+                                        <li id="system_settings_serviceselection"><a class="submenu"
+                                                href="<?= site_url('shipeu/servicesSelections') ?>"><i
+                                                    class="fa fa-list-ol"></i><span
+                                                    class="text"> <?= "Service Selection"; ?></span></a></li>
                                         <li id="system_settings_pickingfees"><a class="submenu"
                                                 href="<?= site_url('shipeu/pickingFees') ?>"><i
                                                     class="fa fa-euro"></i><span
@@ -541,10 +545,6 @@
                                                 href="<?= site_url('shipeu/shippingMargins') ?>"><i
                                                     class="fa fa-plus"></i><span
                                                     class="text"> <?= "Shipping Margins"; ?></span></a></li>
-                                        <li id="system_settings_serviceselection"><a class="submenu"
-                                                href="<?= site_url('shipeu/servicesSelections') ?>"><i
-                                                    class="fa fa-list-ol"></i><span
-                                                    class="text"> <?= "Services Selections"; ?></span></a></li>
                                 </ul>
                             </li>
 

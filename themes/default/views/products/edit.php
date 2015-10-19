@@ -395,7 +395,7 @@ if (!empty($variants)) {
                             <div class="form-group all">
                                 <?= lang('pcf6', 'cf6') ?>
                                 <br />
-                                <?= form_checkbox('cf6', (isset($_POST['cf6']) ? $_POST['cf6'] : ($product ? $product->cf6 : '')), $product->cf6 !== null, 'class="form-control tip" id="cf6"') ?>
+                                <?= form_input('cf6', (isset($_POST['cf6']) ? $_POST['cf6'] : ($product ? $product->cf6 : '')), 'class="form-control tip" id="cf6"') ?>
                             </div>
                         </div>
 
