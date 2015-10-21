@@ -98,11 +98,13 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("courier_id int NOT NULL");
         $this->dbforge->add_field("delivery_days_min int NOT NULL");  // Example: If delivery time is 1 to 3 days, 1 will be added here
         $this->dbforge->add_field("delivery_days_max int NOT NULL");  // Example: If delivery time is 1 to 3 days, 3 will be added here
+        // NOTE: On version1, service spreadsheet fees prices are "total price", later we should indicate the meaning of the price (total, per-unit or chunk)
         $this->dbforge->create_table('service');
 
         // ======
         // seller
         // ======
+
         $this->dbforge->add_field('id');
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("contact_name varchar(250) NOT NULL");
@@ -117,10 +119,13 @@ class Migration_Update309 extends CI_Migration
         // service_selection_method
         // ========================
 
+        // 1-urgent, 2-product, 3-price, 4-post code, 5-weight
+
         $this->dbforge->add_field('id');
         $this->dbforge->add_field("code varchar(100) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->add_field("sequence int NOT NULL");    // Order options from most used to less used
         $this->dbforge->create_table('service_selection_method');
 
         // ================
@@ -133,6 +138,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("code varchar(100) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->add_field("sequence int NOT NULL");    // Order options from most used to less used
         $this->dbforge->create_table('spreadsheet_type');
 
         // =======================
@@ -249,9 +255,9 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("country_id int NULL"); // Any country can be added to a zone
         $this->dbforge->create_table('zone_item');
 
-        // ========
-        // fee_unit
-        // ========
+        // ==========
+        // fee_factor
+        // ==========
 
         // 1-Shipment
         // 2-Product (per unit)
@@ -266,7 +272,8 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
         $this->dbforge->add_field("formula varchar(250) NULL");
-        $this->dbforge->create_table('fee_unit');
+        $this->dbforge->add_field("sequence int NOT NULL");    // Order criteria from most used to less used
+        $this->dbforge->create_table('fee_factor');
 
         // ===============
         // fee_granularity
@@ -299,6 +306,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("code varchar(50) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->add_field("sequence int NOT NULL");    // Order criteria from most used to less used
         $this->dbforge->create_table('fee_price_type');
 
         // ========
@@ -306,26 +314,15 @@ class Migration_Update309 extends CI_Migration
         // ========
 
         $this->dbforge->add_field('id');
-        $this->dbforge->add_field("code varchar(50) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
-        $this->dbforge->add_field("fee_unit_id int NOT NULL");
+        $this->dbforge->add_field("fee_factor_id int NOT NULL");
         $this->dbforge->add_field("fee_price_type_id int NOT NULL");
         $this->dbforge->add_field("fee_granularity_id int NOT NULL");
-        $this->dbforge->add_field("fee_ranges bit NOT NULL DEFAULT 0");
-        $this->dbforge->add_field("custom_field_label varchar(100) NULL"); // Caso especial, por ejemplo "Limite de dinero cubierto por este seguro parcial"
+        $this->dbforge->add_field("fee_ranges int NOT NULL DEFAULT 0");  // 1=Unique price 2=Ranges
+        $this->dbforge->add_field("custom_field1_label varchar(100) NULL"); // Etiqueta de campo extra informativo, por ejemplo "Limite de dinero cubierto por este seguro parcial"
+        $this->dbforge->add_field("custom_field2_label varchar(100) NULL"); // Etiqueta de campo extra informativo, por ejemplo "Limite de dinero cubierto por este seguro parcial"
         $this->dbforge->create_table('fee_type');
-
-        // ===============
-        // seller_fee_type
-        // ===============
-
-        $this->dbforge->add_field('id');
-        $this->dbforge->add_field("seller_id int NOT NULL");
-        $this->dbforge->add_field("fee_type_id int NOT NULL");
-        $this->dbforge->add_field("enabled bit NOT NULL DEFAULT 0");
-        $this->dbforge->add_field("apply_by_default bit NOT NULL DEFAULT 0");
-        $this->dbforge->create_table('seller_fee_type');
 
         // ===
         // fee
@@ -333,13 +330,17 @@ class Migration_Update309 extends CI_Migration
 
         $this->dbforge->add_field('id');
         $this->dbforge->add_field('fee_type_id int NOT NULL');
-        $this->dbforge->add_field('is_courier_cost bit NOT NULL DEFAULT 0');  // Indicates if it's the cost of the courier (not our fees)
+        $this->dbforge->add_field('courier_cost int NOT NULL');  // 1=Our Fee, 2=Courier Fee
+        $this->dbforge->add_field('seller_id int NULL');
         $this->dbforge->add_field('courier_id int NULL');
         $this->dbforge->add_field('service_id int NULL');
-        $this->dbforge->add_field('seller_id int NULL');
+        $this->dbforge->add_field('zone_id int NULL');
+        $this->dbforge->add_field('country_id int NULL');
         $this->dbforge->add_field('minimal_fee decimal(10,2) NULL');
         $this->dbforge->add_field('fee decimal(10,2) NULL');  // Can be null if fee is per range (see fee_range)
-        $this->dbforge->add_field("custom_field_value varchar(100) NULL"); // Caso especial, por ejemplo 100 para "Limite de dinero cubierto por este seguro parcial"
+        $this->dbforge->add_field('apply int NOT NULL');  // 1=automatic, 2=optional-enabled, 3=optional-disabled, 4=disabled
+        $this->dbforge->add_field("custom_field1_value varchar(100) NULL"); // Valor para campo custom_field1_label
+        $this->dbforge->add_field("custom_field2_value varchar(100) NULL"); // Valor para campo custom_field2_label
         $this->dbforge->create_table('fee');
 
         // =========
@@ -357,8 +358,19 @@ class Migration_Update309 extends CI_Migration
         // package_type
         // ============
 
+        // 1=Package, 2=Envelope
+
         $this->dbforge->add_field('id');
-        $this->dbforge->add_field('is_envelope bit NOT NULL DEFAULT 0');
+        $this->dbforge->add_field('code varchar(100) NOT NULL');
+        $this->dbforge->add_field('name varchar(100) NOT NULL');
+        $this->dbforge->create_table('package_type');
+
+        // ========
+        // package
+        // ========
+
+        $this->dbforge->add_field('id');
+        $this->dbforge->add_field('package_type_id int NOT NULL');
         $this->dbforge->add_field('code_1 varchar(100) NOT NULL');
         $this->dbforge->add_field('code_2 varchar(100) NOT NULL');
         $this->dbforge->add_field('cost_price decimal(10,2) NULL');
@@ -369,7 +381,29 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field('outer_width_cm int NULL');
         $this->dbforge->add_field('outer_height_cm int NULL');
         $this->dbforge->add_field('outer_large_cm int NULL');
-        $this->dbforge->create_table('package_type');
+        $this->dbforge->create_table('package');
+
+        // ===============
+        // vwDeliveryCosts
+        // ===============
+
+        // This view is used on the Delivery Costs page to show all the imported
+        // fees of couriers via the different imported spreadsheets (by zone)
+        $this->db->query('
+            CREATE VIEW vwDeliveryCosts AS
+            SELECT courier.name as courier,
+                service.name as service,
+                zone.name as zone,
+                units_from as weight_from,
+                units_to as weight_to,
+                fee.fee as price
+            FROM fee_range
+            INNER JOIN fee ON fee_range.fee_id = fee.id
+            INNER JOIN zone ON fee.zone_id = zone.id
+            INNER JOIN service ON zone.service_id = service.id
+            INNER JOIN courier ON service.courier_id = courier.id
+            WHERE spreadsheet_value_id IS NOT NULL
+        ');
     }
 
     public function down()

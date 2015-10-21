@@ -6,36 +6,249 @@ class Migration_Update310 extends CI_Migration
     {
         // https://ellislab.com/codeigniter/user-guide/database/helpers.html
 
-        // ----------------------------------------------------------------------
-        // Define fee methods used on fee spreadsheets
-        // NOTE: For version 1 (national), only "total-price" method will be used
-        // ----------------------------------------------------------------------
-        $this->db->insert('fee_method', ['code' => 'total-price', 'name' => 'Total Price',
-            'description' => 'Each weight on the spreadsheet means the maximum weight to apply that fee. Indicated price on that row is the *total* price']);
-
-        $this->db->insert('fee_method', ['code' => 'per-kg-price', 'name' => 'Per Kg Price',
-            'description' => 'Each weight on the spreadsheet means the maximum weight to apply that fee. Indicated price on that row is the price *per kg*']);
-
-        $this->db->insert('fee_method', ['code' => 'chunk-weight', 'name' => 'Chunk Weight',
-            'description' => 'Each weight is the "chunk" weight ("to each 100 kg") to sum the price indicated on the same row']);
-
         // -------------------------------------------
         // Define courier services selection methods
         // -------------------------------------------
-        $this->db->insert('selection_method', ['code' => 'urgent', 'name' => 'Urgent Delivery',
+
+        // 1-urgent, 2-product, 3-price, 4-post code, 5-weight
+
+        $this->db->insert('service_selection_method', ['code' => 'urgent', 'name' => 'Urgent Delivery',
             'description' => 'Delivery will be assigned to the faster courier service']);
 
-        $this->db->insert('selection_method', ['code' => 'sku', 'name' => 'Product',
+        $this->db->insert('service_selection_method', ['code' => 'sku', 'name' => 'Product',
             'description' => 'Delivery will be assigned to the default service configured for each product']);
 
-        $this->db->insert('selection_method', ['code' => 'price', 'name' => 'Price',
+        $this->db->insert('service_selection_method', ['code' => 'price', 'name' => 'Price',
             'description' => 'Delivery will be assigned to the cheapest service']);
 
-        $this->db->insert('selection_method', ['code' => 'postal', 'name' => 'Postal',
+        $this->db->insert('service_selection_method', ['code' => 'postal', 'name' => 'Postal',
             'description' => 'Delivery will be assigned to the service which has indicated that postal code']);
 
-        $this->db->insert('selection_method', ['code' => 'weight', 'name' => 'Weight',
+        $this->db->insert('service_selection_method', ['code' => 'weight', 'name' => 'Weight',
             'description' => 'Delivery will be assigned to the service which supports deliveries of such weight']);
+
+        // ----------------------------
+        //  Define Package Types
+        // ----------------------------
+
+        $this->db->insert('package_type', [
+            'code' => 'package',
+            'name' => 'Package',
+        ]);
+
+        $this->db->insert('package_type', [
+            'code' => 'envelope',
+            'name' => 'Envelope',
+        ]);
+
+        // ----------------------------
+        //  Define Spreadsheet types
+        //      and their columns
+        // ----------------------------
+
+        $this->db->insert('spreadsheet_type', [
+            'code' => 'fee',
+            'name' => 'Courier Fees',
+            'description' => 'Spreadsheet containing fees (general or by zone)',
+            'sequence' => 1,
+        ]);
+        $feesSpreadsheetTypeId = $this->db->insert_id();
+
+        $this->db->insert('spreadsheet_type_column', [
+            'code' => 'Weight',
+            'name' => 'Max Weight',
+            'description' => 'Column indicating each max weight',
+            'spreadsheet_type_id' => $feesSpreadsheetTypeId,
+            'is_country' => 0,
+            'is_weight' => 1,
+            'per_service' => 0,
+            'per_zone' => 0,
+        ]);
+
+        $this->db->insert('spreadsheet_type_column', [
+            'code' => 'Price',
+            'name' => 'Price',
+            'description' => 'Column indicating the price',
+            'spreadsheet_type_id' => $feesSpreadsheetTypeId,
+            'is_country' => 0,
+            'is_weight' => 0,
+            'per_service' => 0,
+            'per_zone' => 1,
+        ]);
+
+        // --------------------
+        //   Define Fee Units
+        // --------------------
+
+        // 1-Shipment
+        // 2-Product (per unit)
+        // 3-Weight (per kg)
+        // 4-Price (percentage over total)
+        // 5-Volume (per m3)
+        // 6-Storage (per kg per day fee)
+        // 7-Formula (mixed/combined)
+
+        $this->db->insert('fee_factor', [
+            'code' => 'shipment',
+            'name' => 'By Shipment',
+            'description' => 'Fee by Shipment',
+            'formula' => '',
+            'sequence' => 1,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'product',
+            'name' => 'By Product',
+            'description' => 'Fee by Product',
+            'formula' => '',
+            'sequence' => 2,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'weight',
+            'name' => 'By Weight',
+            'description' => 'Fee by Weight (per Kg)',
+            'formula' => '',
+            'sequence' => 3,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'price',
+            'name' => 'By Price',
+            'description' => 'Fee by Percentage from Total Price',
+            'formula' => '',
+            'sequence' => 4,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'volume',
+            'name' => 'By Volume',
+            'description' => 'Fee by Volume (per m3)',
+            'formula' => '',
+            'sequence' => 5,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'time',
+            'name' => 'By Time',
+            'description' => 'Fee by Storage (per Kg/Day)',
+            'formula' => '',
+            'sequence' => 6,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'formula',
+            'name' => 'By Formula',
+            'description' => 'Fee defined by Formula',
+            'formula' => 'TO-DO',
+            'sequence' => 7,
+        ]);
+
+        // -----------------------
+        // Define Fee Granularity
+        // -----------------------
+
+        // 1-General (for all sellers and couriers)
+        // 2-Seller (fee by seller, same fee for all couriers)
+        // 3-Courier (fee by courier, same fee for all sellers)
+        // 4-Seller+Courier (fee by seller and courier)
+        // 5-Seller+Service (fee by seller and service)
+        // 6-Seller+Zone (fee by seller and zone, used for delivery fees)
+        // 7-Seller+Country (fee by seller and zone, used for delivery fees)
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'general',
+            'name' => 'General',
+            'description' => 'Same fee for all sellers and couriers',
+            'sequence' => 1,
+        ]);
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'seller',
+            'name' => 'By Seller',
+            'description' => 'Fee by seller, same fee for all couriers',
+            'sequence' => 2,
+        ]);
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'courier',
+            'name' => 'By Courier',
+            'description' => 'Fee by courier, same fee for all sellers',
+            'sequence' => 3,
+        ]);
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'seller-courier',
+            'name' => 'By Seller & Courier',
+            'description' => 'Fee by seller and courier',
+            'sequence' => 4,
+        ]);
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'seller-service',
+            'name' => 'By Seller & Service',
+            'description' => 'Fee by seller and service',
+            'sequence' => 5,
+        ]);
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'seller-zone',
+            'name' => 'By Seller & Zone',
+            'description' => 'Fee by seller and zone',
+            'sequence' => 6,
+        ]);
+
+        $this->db->insert('fee_granularity', [
+            'code' => 'seller-country',
+            'name' => 'By Seller & Country',
+            'description' => 'Fee by seller and country',
+            'sequence' => 7,
+        ]);
+
+        // ----------------------------------------------------------------------
+        // Define fee price type used on fee spreadsheets
+        // NOTE: On ShipEU version 1 (only national deliveries), only "final-price" will be used
+        // ----------------------------------------------------------------------
+
+        // 1- Final price
+        // 2- Per unit price
+        // 3- Surcharge percentage (over total cost)
+
+        $this->db->insert('fee_price_type', [
+            'code' => 'total-price',
+            'name' => 'Total Price',
+            'description' => 'Configured price is the total price',
+            'sequence' => 1,
+        ]);
+
+        $this->db->insert('fee_price_type', [
+            'code' => 'unit-price',
+            'name' => 'Unit Price',
+            'description' => 'Price must be multiplicated by factor units (kg, days, m3, etc)',
+            'sequence' => 2,
+        ]);
+
+        $this->db->insert('fee_price_type', [
+            'code' => 'percentage',
+            'name' => 'Percentage',
+            'description' => 'Price is surcharge percentage over total price',
+            'sequence' => 3,
+        ]);
+
+        // -----------------
+        // Define Fee Types
+        // -----------------
+
+        $this->dbforge->add_field('id');
+        $this->dbforge->add_field("code varchar(50) NOT NULL");
+        $this->dbforge->add_field("name varchar(100) NOT NULL");
+        $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->add_field("fee_factor_id int NOT NULL");
+        $this->dbforge->add_field("fee_price_type_id int NOT NULL");
+        $this->dbforge->add_field("fee_granularity_id int NOT NULL");
+        $this->dbforge->add_field("fee_ranges bit NOT NULL DEFAULT 0");
+        $this->dbforge->add_field("custom_field_label varchar(100) NULL"); // Caso especial, por ejemplo "Limite de dinero cubierto por este seguro parcial"
+        $this->dbforge->create_table('fee_type');
 
         // -----------------
         // Define Continents

@@ -519,6 +519,27 @@
                                 </ul>
                             </li>
 
+                            <li class="mm_sellers">
+                                <a class="dropmenu" href="#"><i class="fa fa-shopping-cart"></i><span
+                                        class="text"> <?= "Sellers"; ?> </span> <span
+                                        class="chevron closed"></span></a>
+                                <ul>
+
+                                        <li id="system_settings_sellers"><a class="submenu"
+                                                href="<?= site_url('shipeu/sellers') ?>"><i
+                                                    class="fa fa-shopping-cart"></i><span
+                                                    class="text"> <?= "Sellers"; ?></span></a></li>
+                                        <li id="system_settings_feetypes"><a class="submenu"
+                                                href="<?= site_url('shipeu/feeTypes') ?>"><i
+                                                    class="fa fa-dollar"></i><span
+                                                    class="text"> <?= "Fee Types"; ?></span></a></li>
+                                        <li id="system_settings_fees"><a class="submenu"
+                                                href="<?= site_url('shipeu/fees') ?>"><i
+                                                    class="fa fa-euro"></i><span
+                                                    class="text"> <?= "Fees"; ?></span></a></li>
+                                </ul>
+                            </li>
+
                             <li class="mm_couriers">
                                 <a class="dropmenu" href="#"><i class="fa fa-amazon"></i><span
                                         class="text"> <?= "Couriers"; ?> </span> <span
@@ -537,23 +558,19 @@
                                                 href="<?= site_url('shipeu/servicesSelections') ?>"><i
                                                     class="fa fa-list-ol"></i><span
                                                     class="text"> <?= "Service Selection"; ?></span></a></li>
-                                        <li id="system_settings_pickingfees"><a class="submenu"
-                                                href="<?= site_url('shipeu/pickingFees') ?>"><i
-                                                    class="fa fa-euro"></i><span
-                                                    class="text"> <?= "Picking Fees"; ?></span></a></li>
-                                        <li id="system_settings_shippingmargins"><a class="submenu"
-                                                href="<?= site_url('shipeu/shippingMargins') ?>"><i
-                                                    class="fa fa-plus"></i><span
-                                                    class="text"> <?= "Shipping Margins"; ?></span></a></li>
                                 </ul>
                             </li>
 
-                            <li class="mm_zones">
-                                <a class="dropmenu" href="#"><i class="fa fa-map-o"></i><span
-                                        class="text"> <?= "Zones"; ?> </span> <span
+                            <li class="mm_delivery">
+                                <a class="dropmenu" href="#"><i class="fa fa-envelope"></i><span
+                                        class="text"> <?= "Delivery"; ?> </span> <span
                                         class="chevron closed"></span></a>
                                 <ul>
 
+                                        <li id="system_settings_packages"><a class="submenu"
+                                                href="<?= site_url('shipeu/packages') ?>"><i
+                                                    class="fa fa-envelope"></i><span
+                                                    class="text"> <?= "Packages"; ?></span></a></li>
                                         <li id="system_settings_zones"><a class="submenu"
                                                 href="<?= site_url('shipeu/zones') ?>"><i
                                                     class="fa fa-map-o"></i><span
@@ -561,11 +578,11 @@
                                         <li id="system_settings_zoneitems"><a class="submenu"
                                                 href="<?= site_url('shipeu/zoneItems') ?>"><i
                                                     class="fa fa-sitemap"></i><span
-                                                    class="text"> <?= "Zone Items"; ?></span></a></li>
-                                        <li id="system_settings_zonefees"><a class="submenu"
-                                                href="<?= site_url('shipeu/zoneFees') ?>"><i
+                                                    class="text"> <?= "Zone Config"; ?></span></a></li>
+                                        <li id="system_settings_deliverycosts"><a class="submenu"
+                                                href="<?= site_url('shipeu/deliveryCosts') ?>"><i
                                                     class="fa fa-money"></i><span
-                                                    class="text"> <?= "Zone Fees"; ?></span></a></li>
+                                                    class="text"> <?= "Costs"; ?></span></a></li>
                                 </ul>
                             </li>
 
