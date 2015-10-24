@@ -2477,11 +2477,25 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$this->_inline_js("var ajax_relation_url = '".$this->getAjaxRelationUrl()."';\n");
 
 		$select_title = str_replace('{field_display_as}',$field_info->display_as,$this->l('set_relation_title'));
-		$input = "<select id='field-{$field_info->name}'  name='{$field_info->name}' class='$ajax_or_not_class' data-placeholder='$select_title' style='width:300px;height: 30px'>";
+		if ($field_info->name == 'fee_type_id') {
+			// This hack was added for SMA, so in the Fees page every time the "Fee Type" dropdown is changed, the form is redirected providing the selected fee type
+			$input = "<select id='field-{$field_info->name}'  name='{$field_info->name}' class='$ajax_or_not_class' onchange='window.document.location.href=\"shipeu/fees/add?&feeTypeId=\" + this.value' data-placeholder='$select_title' style='width:300px;height: 30px'>";
+		} else {
+			$input = "<select id='field-{$field_info->name}'  name='{$field_info->name}' class='$ajax_or_not_class' data-placeholder='$select_title' style='width:300px;height: 30px'>";
+		}
 		$input .= "<option value=''></option>";
 
 		if(!$using_ajax)
 		{
+			// If this is the "Fee Type" dropdown, configure their
+			// default value as suplied on the url (Fee page)
+			if ($field_info->name == 'fee_type_id') {
+				if (isset($_GET)) {
+					if (isset($_GET['feeTypeId'])) {
+						$value = $_GET['feeTypeId'];
+					}
+				}
+			}
 			$options_array = $this->get_relation_array($field_info->extras);
 			foreach($options_array as $option_value => $option)
 			{
