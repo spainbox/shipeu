@@ -81,67 +81,81 @@ class Migration_Update310 extends CI_Migration
         // --------------------
 
         // 1-Shipment
-        // 2-Product (per unit)
-        // 3-Weight (per kg)
-        // 4-Price (percentage over total)
-        // 5-Volume (per m3)
-        // 6-Storage (per kg per day fee)
-        // 7-Formula (mixed/combined)
+        // 2-Product (per units)
+        // 3-Product Type (per SKUs)
+        // 4-Weight (per real or volumetric kg)
+        // 5-Volume (per volume factor)
+        // 6-Shipping Price (percentage over shipping)
+        // 7-Total Price (percentage over total)
+        // 8-Storage (per kg per day fee)
+        // 9-Formula (mixed/combined)
+
+        // NOTE: Type 5-Volume is an "indirect" fee type. It store the volumetric factor, a number applied to
+        //       size of package (height+weight+depth) to get the volumetric weight. If volumetric weight is
+        //       greater than real weight (kg) it's used. But fee is alway taken from 4-Weight Fee Factor
+        //       So, type 5-Volume is "mutually exclusive" with type 4-Weight
 
         $this->db->insert('fee_factor', [
             'code' => 'shipment',
             'name' => 'By Shipment',
             'description' => 'Fee by Shipment',
-            'formula' => '',
             'sequence' => 1,
         ]);
 
         $this->db->insert('fee_factor', [
             'code' => 'product',
             'name' => 'By Product',
-            'description' => 'Fee by Product',
-            'formula' => '',
+            'description' => 'Fee by products quantity',
             'sequence' => 2,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'product-type',
+            'name' => 'By Product Type',
+            'description' => 'Fee by SKU quantity',
+            'sequence' => 3,
         ]);
 
         $this->db->insert('fee_factor', [
             'code' => 'weight',
             'name' => 'By Weight',
-            'description' => 'Fee by Weight (per Kg)',
-            'formula' => '',
-            'sequence' => 3,
-        ]);
-
-        $this->db->insert('fee_factor', [
-            'code' => 'price',
-            'name' => 'By Price',
-            'description' => 'Fee by Percentage from Total Price',
-            'formula' => '',
+            'description' => 'Fee by Kg (real or volumetric)',
             'sequence' => 4,
         ]);
 
         $this->db->insert('fee_factor', [
             'code' => 'volume',
-            'name' => 'By Volume',
-            'description' => 'Fee by Volume (per m3)',
-            'formula' => '',
+            'name' => 'By Volume Factor',
+            'description' => 'To obtain volumetric Weight',
             'sequence' => 5,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'shipping-price',
+            'name' => 'By Shipping Price',
+            'description' => 'Fee % of Shipping Price',
+            'sequence' => 6,
+        ]);
+
+        $this->db->insert('fee_factor', [
+            'code' => 'total-price',
+            'name' => 'By Total Price',
+            'description' => 'Fee by % of Total Price',
+            'sequence' => 7,
         ]);
 
         $this->db->insert('fee_factor', [
             'code' => 'time',
             'name' => 'By Time',
             'description' => 'Fee by Storage (per Kg/Day)',
-            'formula' => '',
-            'sequence' => 6,
+            'sequence' => 8,
         ]);
 
         $this->db->insert('fee_factor', [
             'code' => 'formula',
             'name' => 'By Formula',
             'description' => 'Fee defined by Formula',
-            'formula' => 'TO-DO',
-            'sequence' => 7,
+            'sequence' => 9,
         ]);
 
         // -----------------------
@@ -166,14 +180,14 @@ class Migration_Update310 extends CI_Migration
         $this->db->insert('fee_granularity', [
             'code' => 'seller',
             'name' => 'By Seller',
-            'description' => 'Fee by seller, same fee for all couriers',
+            'description' => 'Same fee for all couriers',
             'sequence' => 2,
         ]);
 
         $this->db->insert('fee_granularity', [
             'code' => 'courier',
             'name' => 'By Courier',
-            'description' => 'Fee by courier, same fee for all sellers',
+            'description' => 'Same fee for all sellers',
             'sequence' => 3,
         ]);
 
@@ -217,21 +231,21 @@ class Migration_Update310 extends CI_Migration
         $this->db->insert('fee_price_type', [
             'code' => 'total-price',
             'name' => 'Total Price',
-            'description' => 'Configured price is the total price',
+            'description' => 'Entered fee is the total price to pay',
             'sequence' => 1,
         ]);
 
         $this->db->insert('fee_price_type', [
             'code' => 'unit-price',
             'name' => 'Unit Price',
-            'description' => 'Price must be multiplicated by factor units (kg, days, m3, etc)',
+            'description' => 'Entered fee is per unit, total price must be multiplicated by factor units (kg, days, etc)',
             'sequence' => 2,
         ]);
 
         $this->db->insert('fee_price_type', [
             'code' => 'percentage',
             'name' => 'Percentage',
-            'description' => 'Price is surcharge percentage over total price',
+            'description' => 'Entered fee is per percentage, should be calculated as surcharge % of price',
             'sequence' => 3,
         ]);
 
@@ -554,6 +568,9 @@ class Migration_Update310 extends CI_Migration
         $this->db->insert('state', ['code' => '50', 'name' => 'Zaragoza', 'country_id' => $spainCountryId]);
         $this->db->insert('state', ['code' => '51', 'name' => 'Ceuta', 'country_id' => $spainCountryId]);
         $this->db->insert('state', ['code' => '52', 'name' => 'Melilla', 'country_id' => $spainCountryId]);
+
+        // Configure denormalized field
+        $this->db->query("UPDATE state SET copy_country_name = (SELECT name FROM country WHERE country.id = state.country_id)");
     }
 
     public function down()

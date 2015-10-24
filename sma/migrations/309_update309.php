@@ -35,9 +35,15 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_column('sales', $add);
 
 
-        // ##################################
-        //       Add new ShipEU tables
-        // ##################################
+        // #################################################################
+        //                     Add new ShipEU tables
+        //
+        // NOTE: Fields started with "copy_" are denormalized ("copied")
+        //       fields used because Grocery CRUD only support show values
+        //       from directly related tables. So, since the list of States
+        //       should by shown on the Cities page, we add a new field
+        //       named "copy_country_name" on the "state" table.
+        // #################################################################
 
         // =============
         // continent
@@ -66,6 +72,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("code varchar(100) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("country_id int NOT NULL");
+        $this->dbforge->add_field("copy_country_name varchar(100) NOT NULL");
         $this->dbforge->create_table('state');
 
         // ========
@@ -271,7 +278,6 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("code varchar(50) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
-        $this->dbforge->add_field("formula varchar(250) NULL");
         $this->dbforge->add_field("sequence int NOT NULL");    // Order criteria from most used to less used
         $this->dbforge->create_table('fee_factor');
 
@@ -351,6 +357,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field('fee_id int NOT NULL');
         $this->dbforge->add_field('units_from int NULL');
         $this->dbforge->add_field('units_to int NULL');
+        $this->dbforge->add_field('fee decimal(10,2) NOT NULL');
         $this->dbforge->add_field("spreadsheet_value_id int NULL"); // Si el dato fue importado por una planilla
         $this->dbforge->create_table('fee_range');
 
