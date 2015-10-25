@@ -539,7 +539,7 @@ class Shipeu extends MY_Controller
 
             // Fee textbox is shown only if prices are not configured by ranges
             if (isset($feeType)) {
-                if (empty($feeType->fee_ranges == 1)) {
+                if ($feeType->fee_ranges == 1) {
                     $unsetColumns[] = 'fee';
                 } else {
                     $crud->display_as('fee', 'Fee');
