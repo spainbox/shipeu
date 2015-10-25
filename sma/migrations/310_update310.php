@@ -55,7 +55,7 @@ class Migration_Update310 extends CI_Migration
         $feesSpreadsheetTypeId = $this->db->insert_id();
 
         $this->db->insert('spreadsheet_type_column', [
-            'code' => 'Weight',
+            'code' => 'weight',
             'name' => 'Max Weight',
             'description' => 'Column indicating each max weight',
             'spreadsheet_type_id' => $feesSpreadsheetTypeId,
@@ -66,14 +66,43 @@ class Migration_Update310 extends CI_Migration
         ]);
 
         $this->db->insert('spreadsheet_type_column', [
-            'code' => 'Price',
-            'name' => 'Price',
+            'code' => 'fee',
+            'name' => 'Fee',
             'description' => 'Column indicating the price',
             'spreadsheet_type_id' => $feesSpreadsheetTypeId,
             'is_country' => 0,
             'is_weight' => 0,
             'per_service' => 0,
             'per_zone' => 1,
+        ]);
+
+        // -----------------------------
+        //   Define Spreadsheet Statuses
+        // -----------------------------
+
+        // 1 = "Created" (record created in spreadsheet table)
+        // 2 = "Loaded" (records loaded as-is in spreadsheet_row)
+        // 3 = "Configured" (records created in spreadsheet_column)
+        // 4 = "Imported" (records created in related tables like fee_range, zone_item, etc)
+
+        $this->db->insert('spreadsheet_status', [
+            'code' => 'created',
+            'name' => 'Created',
+        ]);
+
+        $this->db->insert('spreadsheet_status', [
+            'code' => 'loaded',
+            'name' => 'Loaded',
+        ]);
+
+        $this->db->insert('spreadsheet_status', [
+            'code' => 'configured',
+            'name' => 'Configured',
+        ]);
+
+        $this->db->insert('spreadsheet_status', [
+            'code' => 'imported',
+            'name' => 'Imported',
         ]);
 
         // --------------------

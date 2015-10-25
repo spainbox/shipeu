@@ -163,24 +163,39 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("per_zone bit NOT NULL DEFAULT 0");
         $this->dbforge->create_table('spreadsheet_type_column');
 
+        // ==================
+        // spreadsheet_status
+        // ==================
+
+        // 1 = "Created" (record created in spreadsheet table)
+        // 2 = "Loaded" (records loaded as-is in spreadsheet_row)
+        // 3 = "Configured" (records created in spreadsheet_column)
+        // 4 = "Imported" (records created in related tables like fee_range, zone_item, etc)
+
+        $this->dbforge->add_field('id');
+        $this->dbforge->add_field("code varchar(100) NOT NULL");
+        $this->dbforge->add_field("name varchar(100) NOT NULL");
+        $this->dbforge->create_table('spreadsheet_status');
+
         // ===============
-        // spreadsheet
+        //   spreadsheet
         // ===============
 
         $this->dbforge->add_field('id');
         $this->dbforge->add_field("name varchar(100) NOT NULL");
+        $this->dbforge->add_field("path varchar(250) NOT NULL");
         $this->dbforge->add_field("spreadsheet_type_id int NOT NULL");
+        $this->dbforge->add_field("spreadsheet_status_id int NOT NULL");
         $this->dbforge->add_field("courier_id int NULL");
         $this->dbforge->add_field("service_id int NULL");
         $this->dbforge->add_field("year int NOT NULL");
         $this->dbforge->add_field("ignore_first_row bit NOT NULL DEFAULT 0");
         $this->dbforge->add_field("last_column char(1) NULL");
-        $this->dbforge->add_field("preview_date timestamp NOT NULL DEFAULT 0");
-        $this->dbforge->add_field("import_date timestamp NOT NULL DEFAULT 0");
+        $this->dbforge->add_field("updated_date timestamp NOT NULL DEFAULT 0");
         $this->dbforge->create_table('spreadsheet');
 
         // ===================
-        // spreadsheet_row
+        //  spreadsheet_row
         // ===================
 
         $this->dbforge->add_field('id');
@@ -214,19 +229,17 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("column_z VARCHAR(100) NULL");
         $this->dbforge->create_table('spreadsheet_row');
 
-        // =================
-        // spreadsheet_value
-        // =================
+        // ==================
+        // spreadsheet_column
+        // ==================
 
         $this->dbforge->add_field('id');
         $this->dbforge->add_field("spreadsheet_id int NOT NULL");
         $this->dbforge->add_field("spreadsheet_type_column_id int NOT NULL");
+        $this->dbforge->add_field("column_name char(1) NOT NULL");
         $this->dbforge->add_field("service_id int NULL");
         $this->dbforge->add_field("zone_id int NULL");
-        $this->dbforge->add_field("spreadsheet_row_id int NOT NULL");
-        $this->dbforge->add_field("spreadsheet_column_name char(1) NOT NULL");
-        $this->dbforge->add_field("value varchar(100) NOT NULL");
-        $this->dbforge->create_table('spreadsheet_value');
+        $this->dbforge->create_table('spreadsheet_column');
 
         // =====================
         // service_selection
@@ -358,7 +371,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field('units_from int NULL');
         $this->dbforge->add_field('units_to int NULL');
         $this->dbforge->add_field('fee decimal(10,2) NOT NULL');
-        $this->dbforge->add_field("spreadsheet_value_id int NULL"); // Si el dato fue importado por una planilla
+        $this->dbforge->add_field("spreadsheet_id int NULL"); // Si el dato fue importado por una planilla
         $this->dbforge->create_table('fee_range');
 
         // ============

@@ -594,7 +594,7 @@ class Shipeu extends MY_Controller
             $crud->set_table('fee_range');
             $crud->set_subject($pageTitle);
             $crud->columns('units_from', 'units_to', 'fee');
-            $crud->unset_fields('spreadsheet_value_id');
+            $crud->unset_fields('spreadsheet_id');
 
             if (isset($_GET)) {
                 if (isset($_GET['fee_id'])) {
@@ -625,6 +625,170 @@ class Shipeu extends MY_Controller
         }
 
     }
+
+    public function spreadsheets()
+    {
+        $this->sma->checkPermissions();
+
+        $pageTitle = 'Spreadsheet';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('spreadsheet');
+            $crud->set_subject($pageTitle);
+            $crud->columns('name', 'spreadsheet_type_id', 'spreadsheet_status_id', 'courier_id', 'service_id', 'year', 'updated_date');
+            $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
+
+            $crud->change_field_type('name','invisible');
+            $crud->change_field_type('spreadsheet_status_id','invisible');
+            $crud->change_field_type('updated_date','invisible');
+
+            $crud->callback_before_insert(array($this,'spreadsheet_before_insert'));
+            $crud->callback_after_insert(array($this,'spreadsheet_after_insert'));
+
+            /// Upload field
+            $crud->set_field_upload('path','assets/uploads/csv', 'csv');
+            $crud->display_as('path','Upload csv');
+            $crud->set_rules('path','Upload csv',['required']);
+            $crud->callback_after_upload(array($this,'spreadsheet_after_upload'));
+
+            $crud->unset_fields('name', 'spreadsheet_status_id', 'ignore_first_row', 'last_column', 'updated_date');
+
+            $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
+            $crud->display_as('spreadsheet_type_id','Type');
+
+            $crud->set_relation('spreadsheet_status_id','spreadsheet_status','{name}');
+            $crud->display_as('spreadsheet_status_id','Status');
+
+            $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
+            $crud->display_as('courier_id','Courier');
+
+            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
+            $crud->display_as('service_id','Service');
+
+            $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
+            $crud->set_rules('year','Spreadsheet Year',['integer', 'required']);
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+
+    }
+
+    function spreadsheet_after_upload($uploader_response, $field_info, $files_to_upload)
+    {
+        $fileName = $uploader_response[0]->name;
+        $filePath = $field_info->upload_path.'/'. $fileName;
+
+        $this->session->set_userdata('uploaded_file_name', $fileName);
+        $this->session->set_userdata('uploaded_file_path', $filePath);
+
+        return true;
+    }
+
+    function spreadsheet_before_insert($post_array)
+    {
+        $post_array['spreadsheet_status_id'] = 1;
+        $sessionData = $this->session->get_userdata();
+        $post_array['name'] = $sessionData['uploaded_file_name'];
+        $post_array['path'] = $sessionData['uploaded_file_path'];
+        $post_array['updated_date'] = date('Y-d-m');
+
+        return $post_array;
+    }
+
+    function spreadsheet_after_insert($post_array, $primary_key)
+    {
+        $this->load->library('csvimport');
+        $sessionData = $this->session->get_userdata();
+        $filePath = $sessionData['uploaded_file_path'];
+        $content = $this->csvimport->get_array($filePath, FALSE, FALSE, FALSE, ";");
+
+        foreach ($content as $row => $columns)
+        {
+            // These fields are the same for each row
+            $fields = [
+                'spreadsheet_id' => $primary_key,
+                'row_number' => $row,
+            ];
+
+            $columnName = 'a';
+            foreach ($columns as $data) {
+                $fields['column_'.$columnName] = $data;
+                $columnName = chr(ord($columnName)+1);
+            }
+
+            // Insert row
+            $this->db->insert('spreadsheet_row', $fields);
+        }
+
+        return $post_array;
+    }
+
+    public function spreadsheetRows()
+    {
+        $this->load->library('session');
+
+        $this->sma->checkPermissions();
+
+        $pageTitle = 'Spreadsheet Content';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('spreadsheet_row');
+            $crud->set_subject($pageTitle);
+            $crud->columns('row_number', 'column_a', 'column_b', 'column_c', 'column_d', 'column_e', 'column_f', 'column_g', 'column_h', 'column_i', 'column_j', 'column_k');
+
+            // Read only page
+            $crud->unset_edit();
+            $crud->unset_delete();
+            $crud->unset_add();
+
+            $crud->unset_fields('spreadsheet_id');
+
+            if (isset($_GET)) {
+                if (isset($_GET['spreadsheetId'])) {
+                    // Store fee_id (provided via url) in session
+                    $spreadsheetId = $_GET['spreadsheetId'];
+                    $this->session->set_userdata(['spreadsheetId' => $spreadsheetId]);
+                }
+            }
+
+            // Set fee_id as hidden field (from session)
+            $userData = $this->session->get_userdata();
+            $feeId = $userData['spreadsheetId'];
+            $crud->field_type('spreadsheetId', 'hidden', $spreadsheetId);
+
+            // Filter by current fee_id
+            $crud->where('spreadsheet_id', $spreadsheetId);
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+
+    }
+
+    function redirectSpreadsheetRows($primary_key , $row)
+    {
+        return site_url('shipeu/spreadsheetRows?spreadsheetId='.$primary_key);
+    }
+
+    // Redirect to see spreadsheet rows
+
 
     private function prepareBreadcrumbs($actionName, $linkName)
     {
