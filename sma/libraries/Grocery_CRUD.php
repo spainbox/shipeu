@@ -2477,7 +2477,8 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$this->_inline_js("var ajax_relation_url = '".$this->getAjaxRelationUrl()."';\n");
 
 		$select_title = str_replace('{field_display_as}',$field_info->display_as,$this->l('set_relation_title'));
-		if ($field_info->name == 'fee_type_id') {
+		$controllerName = $this->get_method_name();
+		if ($controllerName == 'fees' && $field_info->name == 'fee_type_id') {
 			// This hack was added for SMA, so in the Fees page every time the "Fee Type" dropdown is changed, the form is redirected providing the selected fee type
 			$input = "<select id='field-{$field_info->name}'  name='{$field_info->name}' class='$ajax_or_not_class' onchange='window.document.location.href=\"shipeu/fees/add?&feeTypeId=\" + this.value' data-placeholder='$select_title' style='width:300px;height: 30px'>";
 		} else {

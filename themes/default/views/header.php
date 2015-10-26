@@ -516,6 +516,14 @@
                                                 href="<?= site_url('shipeu/cities') ?>"><i
                                                     class="fa fa-bank"></i><span
                                                     class="text"> <?= "Cities"; ?></span></a></li>
+                                        <li id="system_settings_zones"><a class="submenu"
+                                                href="<?= site_url('shipeu/zones') ?>"><i
+                                                    class="fa fa-map-o"></i><span
+                                                    class="text"> <?= "Zones"; ?></span></a></li>
+                                        <li id="system_settings_zoneitems"><a class="submenu"
+                                                href="<?= site_url('shipeu/zoneItems') ?>"><i
+                                                    class="fa fa-sitemap"></i><span
+                                                    class="text"> <?= "Zone Config"; ?></span></a></li>
                                 </ul>
                             </li>
 
@@ -565,9 +573,9 @@
                                 </ul>
                             </li>
 
-                            <li class="mm_delivery">
-                                <a class="dropmenu" href="#"><i class="fa fa-envelope"></i><span
-                                        class="text"> <?= "Delivery"; ?> </span> <span
+                            <li class="mm_shipments">
+                                <a class="dropmenu" href="#"><i class="fa fa-truck"></i><span
+                                        class="text"> <?= "Shipments"; ?> </span> <span
                                         class="chevron closed"></span></a>
                                 <ul>
 
@@ -575,18 +583,14 @@
                                                 href="<?= site_url('shipeu/packages') ?>"><i
                                                     class="fa fa-envelope"></i><span
                                                     class="text"> <?= "Packages"; ?></span></a></li>
-                                        <li id="system_settings_zones"><a class="submenu"
-                                                href="<?= site_url('shipeu/zones') ?>"><i
-                                                    class="fa fa-map-o"></i><span
-                                                    class="text"> <?= "Zones"; ?></span></a></li>
-                                        <li id="system_settings_zoneitems"><a class="submenu"
-                                                href="<?= site_url('shipeu/zoneItems') ?>"><i
-                                                    class="fa fa-sitemap"></i><span
-                                                    class="text"> <?= "Zone Config"; ?></span></a></li>
                                         <li id="system_settings_deliverycosts"><a class="submenu"
                                                 href="<?= site_url('shipeu/deliveryCosts') ?>"><i
                                                     class="fa fa-money"></i><span
                                                     class="text"> <?= "Costs"; ?></span></a></li>
+                                        <li id="system_settings_shipments"><a class="submenu"
+                                                href="<?= site_url('shipeu/shipments') ?>"><i
+                                                    class="fa fa-truck"></i><span
+                                                    class="text"> <?= "Shipments"; ?></span></a></li>
                                 </ul>
                             </li>
 

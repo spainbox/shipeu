@@ -400,7 +400,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('package');
             $crud->set_subject($pageTitle);
-            $crud->columns('package_type_id', 'code_1', 'code_2', 'cost_price', 'sell_price', 'inner_width_cm', 'inner_height_cm', 'inner_large_cm', 'outer_width_cm', 'outer_height_cm', 'outer_large_cm');
+            $crud->columns('package_type_id', 'code_1', 'code_2', 'cost_price', 'inner_width_cm', 'inner_height_cm', 'inner_large_cm', 'outer_width_cm', 'outer_height_cm', 'outer_large_cm');
             $crud->unique_fields('code_1','code_2');
 
             $crud->set_relation('package_type_id','package_type','{name}');
@@ -408,7 +408,6 @@ class Shipeu extends MY_Controller
 
             $crud->set_rules('code_1','Code 1',['required']);
             $crud->set_rules('cost_price','Cost Price',['decimal', 'required']);
-            $crud->set_rules('sell_price','Sell Price',['decimal', 'required']);
             $crud->set_rules('inner_width_cm','Inner Width Cm',['integer', 'required']);
             $crud->set_rules('inner_height_cm','Inner Height Cm',['integer', 'required']);
             $crud->set_rules('inner_large_cm','Inner Large Cm',['integer', 'required']);
@@ -439,8 +438,8 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('fee_type');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('name', 'description', 'fee_factor_id', 'fee_price_type_id', 'fee_granularity_id', 'fee_ranges');
-            $crud->columns('name', 'description', 'fee_factor_id', 'fee_price_type_id', 'fee_granularity_id', 'fee_ranges', 'custom_field1_label', 'custom_field2_label');
+            $crud->required_fields('name', 'description', 'fee_factor_id', 'fee_price_type_id', 'fee_granularity_id', 'fee_ranges', 'apply');
+            $crud->columns('name', 'description', 'fee_factor_id', 'fee_price_type_id', 'fee_granularity_id', 'fee_ranges', 'apply', 'custom_field1_label', 'custom_field2_label');
             $crud->unique_fields('name');
 
             $crud->set_relation('fee_factor_id', 'fee_factor', '{name} - {description}', null, 'sequence ASC');
@@ -454,6 +453,9 @@ class Shipeu extends MY_Controller
 
             $crud->field_type('fee_ranges', 'dropdown', [ '1' => 'No - Unique Price', '2' => 'Yes - Prices by Ranges']);
             $crud->display_as('fee_ranges', 'Use Fee Ranges');
+
+            $crud->field_type('apply', 'dropdown', [ '1' => 'Automatically', '2' => 'Manually - Enabled by default', '3' => 'Manually - Disabled by default', '4' => 'Never (inactive)']);
+            $crud->display_as('apply', 'Apply');
 
             $output = $crud->render();
 
@@ -477,8 +479,8 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('fee');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('fee_type_id', 'courier_cost', 'minimal_fee', 'apply');
-            $crud->columns('fee_type_id', 'courier_cost', 'seller_id', 'courier_id', 'service_id', 'zone_id', 'country_id', 'minimal_fee', 'apply', 'custom_field1_value', 'custom_field2_value');
+            $crud->required_fields('fee_type_id', 'courier_cost', 'minimal_fee');
+            $crud->columns('fee_type_id', 'courier_cost', 'seller_id', 'courier_id', 'service_id', 'zone_id', 'country_id', 'minimal_fee', 'custom_field1_value', 'custom_field2_value');
             $crud->add_action('Ranges', '', '','ui-icon-info', array($this,'redirectFeeRanges'));
 
             $unsetColumns = array();
@@ -500,54 +502,51 @@ class Shipeu extends MY_Controller
             $crud->display_as('courier_cost', 'Is Courier Cost');
 
             // Granularity Dropdowns (1 is General)
+            $crud->display_as('seller_id', 'Seller');
             if ($granularitySequence >= 2) {
                 $crud->set_relation('seller_id', 'seller', 'name', null, 'name ASC');
-                $crud->display_as('seller_id', 'Seller');
             } else {
                 $unsetColumns[] = 'seller_id';
             }
 
+            $crud->display_as('courier_id', 'Courier');
             if ($granularitySequence >= 3) {
                 $crud->set_relation('courier_id', 'courier', '{name}', null, 'name ASC');
-                $crud->display_as('courier_id', 'Courier');
             } else {
                 $unsetColumns[] = 'courier_id';
             }
 
             // Sequence 4 is not included because is Seller+Courier (and both dropdown were already shown)
 
+            $crud->display_as('service_id', 'Service');
             if ($granularitySequence >= 5) {
                 $crud->set_relation('service_id', 'service', '{name}', null, 'name ASC');
-                $crud->display_as('service_id', 'Service');
             } else {
                 $unsetColumns[] = 'service_id';
             }
 
+            $crud->display_as('zone_id', 'Zone');
             if ($granularitySequence >= 6) {
                 $crud->set_relation('zone_id', 'zone', '{name}', null, 'name ASC');
-                $crud->display_as('zone_id', 'Zone');
             } else {
                 $unsetColumns[] = 'zone_id';
             }
 
+            $crud->display_as('country_id', 'Country');
             if ($granularitySequence >= 7) {
                 $crud->set_relation('country_id', 'country', '{code} - {name}', null, 'code ASC');
-                $crud->display_as('country_id', 'Country');
+
             } else {
                 $unsetColumns[] = 'country_id';
             }
 
             // Fee textbox is shown only if prices are not configured by ranges
+            $crud->display_as('fee', 'Fee');
             if (isset($feeType)) {
                 if ($feeType->fee_ranges == 1) {
                     $unsetColumns[] = 'fee';
-                } else {
-                    $crud->display_as('fee', 'Fee');
                 }
             }
-
-            $crud->field_type('apply', 'dropdown', [ '1' => 'Automatically', '2' => 'Manually - Enabled by default', '3' => 'Manually - Disabled by default', '4' => 'Never (inactive)']);
-            $crud->display_as('apply', 'Apply');
 
             if (empty($feeType->custom_field1_label)) {
                 $unsetColumns[] = 'custom_field1_value';
@@ -782,13 +781,218 @@ class Shipeu extends MY_Controller
 
     }
 
+    // Redirect to see spreadsheet rows
     function redirectSpreadsheetRows($primary_key , $row)
     {
         return site_url('shipeu/spreadsheetRows?spreadsheetId='.$primary_key);
     }
 
-    // Redirect to see spreadsheet rows
+    public function shipments()
+    {
+        $this->sma->checkPermissions();
 
+        $pageTitle = 'Shipments';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('purchases');
+            $crud->set_subject($pageTitle);
+            $crud->columns('date', 'supplier_id', 'total', 'shipping', 'grand_total', 'status');
+
+            // Read only
+            $crud->unset_add();
+            $crud->unset_delete();
+            $crud->unset_edit();
+
+            $crud->add_action('Config Fees', '', '','ui-icon-info', array($this,'redirectShipmentFees'));
+            $crud->add_action('Packages', '', '','ui-icon-info', array($this,'redirectShipmentPackages'));
+
+            $crud->set_relation('supplier_id', 'companies', '{name}');
+            $crud->display_as('supplier_id', 'Seller');
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+    }
+
+    function redirectShipmentFees($primary_key , $row)
+    {
+        return site_url('shipeu/shipmentFees').'?purchaseId=' . $primary_key;
+    }
+
+    function redirectShipmentPackages($primary_key , $row)
+    {
+        return site_url('shipeu/shipmentPackages').'?purchaseId=' . $primary_key;
+    }
+
+    public function shipmentFees()
+    {
+        $this->load->library('session');
+
+        $this->sma->checkPermissions();
+
+        $pageTitle = 'Shipment Fees';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('shipment_fee');
+            $crud->set_subject($pageTitle);
+            $crud->columns('fee_type_id', 'apply');
+
+            $crud->field_type('purchase_id', 'hidden');
+            $crud->field_type('fee', 'hidden');
+
+            $crud->set_relation('fee_type_id','fee_type','{name}', null, 'name ASC');
+            $crud->display_as('fee_type_id','Fee Type');
+
+            $crud->field_type('apply', 'dropdown', [ '1' => 'Yes', '2' => 'No' ]);
+            $crud->display_as('apply', 'Apply');
+
+            $crud->callback_before_insert(array($this,'shipment_fee_before_insert'));
+
+            if (isset($_GET)) {
+                if (isset($_GET['purchaseId'])) {
+                    // Store fee_id (provided via url) in session
+                    $purchaseId = $_GET['purchaseId'];
+                    $this->session->set_userdata(['purchaseId' => $purchaseId]);
+                }
+            }
+
+            // Set fee_id as hidden field (from session)
+            $userData = $this->session->get_userdata();
+            $purchaseId = $userData['purchaseId'];
+            $crud->field_type('purchaseId', 'hidden', $purchaseId);
+
+            // Check if there are shipment fees added. If not, add defaults
+            // TO-DO: The injection of records should be performed once a purchase is created,
+            //        so an user is not forced to enter to this page
+            $shipmentFees = $this->db->query("SELECT * FROM shipment_fee WHERE purchase_id = " . $purchaseId)->result();
+            if (empty($shipmentFees)) {
+                // Codes 2 and 3 are used for "manual" configuration: these are the only fee types
+                // that can be manually selected on a per-shipment basis
+                $feeTypes = $this->db->query("SELECT * FROM fee_type WHERE apply = 2 OR apply = 3")->result();
+                foreach ($feeTypes as $feeType) {
+                    $this->db->insert('shipment_fee', [
+                            'purchase_id' => $purchaseId,
+                            'fee_type_id' => $feeType->id,
+                            'apply' => ($feeType->apply - 1),    // Code 2 (Manually Enabled) became 1 (Enabled) and code 3 (Manually Disabled) became 2 (Disabled)
+                            'fee' => 0,    // Will be calculated later. This field is kept for history queries because fees can change over time, so we have a snapshot of the fee at this moment.
+                        ]
+                    );
+                }
+            }
+
+            // Filter by current purchase/shipment
+            $crud->where('purchase_id', $purchaseId);
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+    }
+
+    function shipment_fee_before_insert($post_array)
+    {
+        $sessionData = $this->session->get_userdata();
+        $post_array['purchase_id'] = $sessionData['purchaseId'];
+
+        return $post_array;
+    }
+
+    public function shipmentPackages()
+    {
+        $this->load->library('session');
+
+        $this->sma->checkPermissions();
+
+        $pageTitle = 'Shipment Packages';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        if (isset($_GET)) {
+            if (isset($_GET['purchaseId'])) {
+                // Store fee_id (provided via url) in session
+                $purchaseId = $_GET['purchaseId'];
+                $this->session->set_userdata(['purchaseId' => $purchaseId]);
+            }
+        }
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('shipment_package');
+            $crud->set_subject($pageTitle);
+            $crud->columns('package_id', 'quantity');
+
+            $crud->field_type('purchase_id', 'hidden');
+            $crud->field_type('unit_cost', 'hidden');
+            $crud->field_type('total_cost', 'hidden');
+
+            $crud->set_relation('package_id','package','{code_1}', null, 'code_1 ASC');
+            $crud->display_as('package_id','Package');
+
+            $crud->set_rules('quantity','Quantity',['integer', 'required']);
+            $crud->display_as('quantity', 'Quantity');
+
+            $crud->callback_before_insert(array($this,'shipment_package_before_insert'));
+
+            // Set purchaseId as hidden field (from session)
+            $userData = $this->session->get_userdata();
+            $purchaseId = $userData['purchaseId'];
+            $crud->field_type('purchaseId', 'hidden', $purchaseId);
+
+            // Filter by current purchase/shipment
+            $crud->where('purchase_id', $purchaseId);
+
+            // Check if there are packages added. If not, use BoxPacker
+            // to calculate and fill the suggested packages (can be changed by user)
+            // TO-DO: The injection of records should be performed once a purchase is created,
+            //        so an user is not forced to enter to this page
+            $shipmentPackages = $this->db->query("SELECT * FROM shipment_package WHERE purchase_id = " . $purchaseId)->result();
+            if (empty($shipmentPackages)) {
+                // TO-DO: Make BoxPacker works
+                //$packer = $this->load->library('BoxPacker/Packer');
+                //foreach ($boxes as $box) {
+                //    $this->db->insert('shipment_package', [
+                //            'purchase_id' => $purchaseId,
+                //            'package_id' => $box->id,
+                //            'unit_cost' => $package->cost_price,
+                //            'quantity' => $quantity,
+                //            'total_cost' => $package->cost_price * $quantity,
+                //        ]
+                //    );
+                //}
+            }
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+    }
+
+    function shipment_package_before_insert($post_array)
+    {
+        $sessionData = $this->session->get_userdata();
+        $post_array['purchase_id'] = $sessionData['purchaseId'];
+
+        return $post_array;
+    }
 
     private function prepareBreadcrumbs($actionName, $linkName)
     {

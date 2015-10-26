@@ -422,7 +422,7 @@ class Migration_Update309 extends CI_Migration
             INNER JOIN zone ON fee.zone_id = zone.id
             INNER JOIN service ON zone.service_id = service.id
             INNER JOIN courier ON service.courier_id = courier.id
-            WHERE spreadsheet_value_id IS NOT NULL
+            WHERE spreadsheet_id IS NOT NULL
         ');
     }
 

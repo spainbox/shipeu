@@ -6,6 +6,8 @@
  */
   namespace DVDoug\BoxPacker;
 
+  include_once __DIR__ . '/Psr/Log/LoggerInterface.php';
+
   use Psr\Log\LoggerAwareInterface;
   use Psr\Log\LoggerAwareTrait;
   use Psr\Log\LogLevel;

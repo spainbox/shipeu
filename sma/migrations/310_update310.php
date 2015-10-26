@@ -155,7 +155,7 @@ class Migration_Update310 extends CI_Migration
         $this->db->insert('fee_factor', [
             'code' => 'volume',
             'name' => 'By Volume Factor',
-            'description' => 'To obtain volumetric Weight',
+            'description' => 'To get volumetric Weight',
             'sequence' => 5,
         ]);
 
