@@ -15,7 +15,7 @@ class Migration_Update311 extends CI_Migration
             'sequence' => 6,
         ]);
 
-        $this->dbforge->add_column('seller', ["biller_company_id int NULL", "supplier_company_id int NULL"]);
+        $this->dbforge->add_column('seller', ["email varchar(100) NULL AFTER country_id", "biller_company_id int NULL", "supplier_company_id int NULL"]);
 
         $this->dbforge->drop_column('package', "sell_price");
 

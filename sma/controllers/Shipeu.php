@@ -241,11 +241,16 @@ class Shipeu extends MY_Controller
             $crud->set_table('seller');
             $crud->set_subject($pageTitle);
             $crud->required_fields('name', 'contact_name', 'address', 'phone', 'country_id');
-            $crud->columns('name', 'contact_name', 'address', 'phone', 'country_id', 'website', 'notes');
-            $crud->unique_fields('name');
+            $crud->columns('name', 'contact_name', 'address', 'phone', 'country_id', 'email', 'website', 'notes');
+            $crud->unique_fields('name', 'contact_name', 'email', 'website');
+
+            $crud->field_type('biller_company_id', 'hidden');
+            $crud->field_type('supplier_company_id', 'hidden');
 
             $crud->set_relation('country_id','country','{code} - {name}', null, 'code ASC');
             $crud->display_as('country_id','Country');
+
+            $crud->callback_after_insert(array($this,'seller_after_insert'));
 
             $output = $crud->render();
 
@@ -254,6 +259,41 @@ class Shipeu extends MY_Controller
         } catch (Exception $e) {
             show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
         }
+    }
+
+    function seller_after_insert($post_array, $primary_key)
+    {
+        $country = $this->db->query('SELECT * FROM country WHERE id = ' . $post_array['country_id'])->result();
+
+        // Create company for Biller related to new Seller
+        $groupName = 'biller';
+        $this->db->insert('companies', [
+            'group_name' => $groupName,
+            'name' => $post_array['contact_name'],
+            'company' => $post_array['name'],
+            'address' => $post_array['address'],
+            'phone' => $post_array['phone'],
+            'email' => $post_array['email'],
+            'country' => $country->name,
+        ]);
+        $billerCompanyId = $this->db->insert_id();
+        $this->db->query('UPDATE seller SET biller_company_id = ' . $billerCompanyId . ' WHERE id = ' . $primary_key);
+
+        // Create company for Supplier related to new Seller
+        $groupName = 'supplier';
+        $this->db->insert('companies', [
+            'group_name' => $groupName,
+            'name' => $post_array['contact_name'],
+            'company' => $post_array['name'],
+            'address' => $post_array['address'],
+            'phone' => $post_array['phone'],
+            'email' => $post_array['email'],
+            'country' => $country->name,
+        ]);
+        $supplierCompanyId = $this->db->insert_id();
+        $this->db->query('UPDATE seller SET supplier_company_id = ' . $supplierCompanyId . ' WHERE id = ' . $primary_key);
+
+        return $post_array;
     }
 
     public function servicesSelections()
