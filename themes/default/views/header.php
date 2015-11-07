@@ -566,10 +566,6 @@
                                                 href="<?= site_url('shipeu/servicesSelections') ?>"><i
                                                     class="fa fa-list-ol"></i><span
                                                     class="text"> <?= "Service Selection"; ?></span></a></li>
-                                        <li id="system_settings_spreadsheets"><a class="submenu"
-                                                href="<?= site_url('shipeu/spreadsheets') ?>"><i
-                                                    class="fa fa-file-excel-o"></i><span
-                                                    class="text"> <?= "Spreadsheets"; ?></span></a></li>
                                 </ul>
                             </li>
 
@@ -591,6 +587,18 @@
                                                 href="<?= site_url('shipeu/shipments') ?>"><i
                                                     class="fa fa-truck"></i><span
                                                     class="text"> <?= "Shipments"; ?></span></a></li>
+                                </ul>
+                            </li>
+
+                            <li class="mm_spreadsheets">
+                                <a class="dropmenu" href="#"><i class="fa fa-file-excel-o"></i><span
+                                        class="text"> <?= "Spreadsheets"; ?> </span> <span
+                                        class="chevron closed"></span></a>
+                                <ul>
+                                        <li id="system_settings_spreadsheets"><a class="submenu"
+                                                href="<?= site_url('shipeu/spreadsheets') ?>"><i
+                                                    class="fa fa-download"></i><span
+                                                    class="text"> <?= "Import"; ?></span></a></li>
                                 </ul>
                             </li>
 

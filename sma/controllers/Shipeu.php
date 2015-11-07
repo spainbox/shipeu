@@ -678,7 +678,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('spreadsheet');
             $crud->set_subject($pageTitle);
-            $crud->columns('name', 'spreadsheet_type_id', 'spreadsheet_status_id', 'courier_id', 'service_id', 'year', 'updated_date');
+            $crud->columns('name', 'spreadsheet_type_id', 'spreadsheet_status_id', 'courier_id', 'service_id', 'year', 'ignore_first_row', 'fields_delimiter', 'decimals_delimiter');
             $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
 
             $crud->change_field_type('name','invisible');
@@ -694,7 +694,7 @@ class Shipeu extends MY_Controller
             $crud->set_rules('path','Upload csv',['required']);
             $crud->callback_after_upload(array($this,'spreadsheet_after_upload'));
 
-            $crud->unset_fields('name', 'spreadsheet_status_id', 'ignore_first_row', 'last_column', 'updated_date');
+            $crud->unset_fields('name', 'spreadsheet_status_id', 'last_column', 'updated_date');
 
             $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
             $crud->display_as('spreadsheet_type_id','Type');
@@ -710,6 +710,23 @@ class Shipeu extends MY_Controller
 
             $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
             $crud->set_rules('year','Spreadsheet Year',['integer', 'required']);
+
+            $crud->field_type('ignore_first_row', 'dropdown', [0 => 'No', 1=>'Yes']);
+            $crud->display_as('ignore_first_row', 'Ignore First Row');
+
+            $characters = [
+                'comma' => ', (Comma)',
+                'semicolon' => '; (Semicolon)',
+                'dot' => '. (Dot)',
+                'whitespace' => '_ (Whitespace)',
+                'tab' => '\t (Tabulator)',
+            ];
+
+            $crud->field_type('fields_delimiter', 'dropdown', $characters);
+            $crud->display_as('fields_delimiter', 'Fields Separator');
+
+            $crud->field_type('decimals_delimiter', 'dropdown', $characters);
+            $crud->display_as('decimals_delimiter', 'Decimals Separator');
 
             $output = $crud->render();
 
@@ -745,28 +762,87 @@ class Shipeu extends MY_Controller
 
     function spreadsheet_after_insert($post_array, $primary_key)
     {
-        $this->load->library('csvimport');
         $sessionData = $this->session->get_userdata();
         $filePath = $sessionData['uploaded_file_path'];
-        $content = $this->csvimport->get_array($filePath, FALSE, FALSE, FALSE, ";");
+        $handle = fopen($filePath, "r");
 
-        foreach ($content as $row => $columns)
+        $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id =" . $primary_key)->row();
+
+        // Configure first line/row to read
+        if ($spreadsheet->ignore_first_row == 0) {
+            $initialLine = 1;
+        } else {
+            $initialLine = 2;
+        }
+
+        // Configure delimiter
+        switch ($spreadsheet->fields_delimiter) {
+            case 'comma':
+                $fieldsDelimiter = ',';
+                break;
+            case 'semicolon':
+                $fieldsDelimiter = ';';
+                break;
+            case 'dot':
+                $fieldsDelimiter = '.';
+                break;
+            case 'whitespace':
+                $fieldsDelimiter = ' ';
+                break;
+            case 'tab':
+                $fieldsDelimiter = "\t";
+                break;
+        }
+
+        $row = 1;
+
+        while (($data = fgetcsv($handle, 0, $fieldsDelimiter)) !== FALSE)
         {
-            // These fields are the same for each row
+            if($row < $initialLine)
+            {
+                $row++;
+                continue;
+            }
+
             $fields = [
                 'spreadsheet_id' => $primary_key,
                 'row_number' => $row,
             ];
 
             $columnName = 'a';
-            foreach ($columns as $data) {
-                $fields['column_'.$columnName] = $data;
+            foreach($data as $index => $value) // assumes there are as many columns as their are title columns
+            {
+                // We will store numeric data using comma as decimal separator
+                $standardDecimalSeparator = ',';
+                switch ($spreadsheet->decimals_delimiter) {
+                    case 'comma':
+                        $value = str_replace(',', $standardDecimalSeparator, $value);
+                        break;
+                    case 'semicolon':
+                        $value = str_replace(';', $standardDecimalSeparator, $value);
+                        break;
+                    case 'dot':
+                        $value = str_replace('.', $standardDecimalSeparator, $value);
+                        break;
+                    case 'whitespace':
+                        $value = str_replace(' ', $standardDecimalSeparator, $value);
+                        break;
+                    case 'tab':
+                        $value = str_replace("\t", $standardDecimalSeparator, $value);
+                        break;
+                }
+
+                $fields['column_'.$columnName] = $value;
                 $columnName = chr(ord($columnName)+1);
             }
 
             // Insert row
             $this->db->insert('spreadsheet_row', $fields);
+
+            $row++;
         }
+
+        fclose($handle);
 
         return $post_array;
     }

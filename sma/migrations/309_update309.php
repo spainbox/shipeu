@@ -190,6 +190,8 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("service_id int NULL");
         $this->dbforge->add_field("year int NOT NULL");
         $this->dbforge->add_field("ignore_first_row bit NOT NULL DEFAULT 0");
+        $this->dbforge->add_field("fields_delimiter varchar(20) NOT NULL DEFAULT 'semicolon'");
+        $this->dbforge->add_field("decimals_delimiter varchar(20) NOT NULL DEFAULT 'comma'");
         $this->dbforge->add_field("last_column char(1) NULL");
         $this->dbforge->add_field("updated_date timestamp NOT NULL DEFAULT 0");
         $this->dbforge->create_table('spreadsheet');
