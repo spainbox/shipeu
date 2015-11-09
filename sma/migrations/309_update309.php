@@ -146,6 +146,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("code varchar(100) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("description varchar(250) NOT NULL");
+        $this->dbforge->add_field("source varchar(250) NOT NULL DEFAULT 'courier'");   // "courier", "seller"
         $this->dbforge->add_field("sequence int NOT NULL");    // Order options from most used to less used
         $this->dbforge->create_table('spreadsheet_type');
 
@@ -164,19 +165,31 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("per_zone bit NOT NULL DEFAULT 0");
         $this->dbforge->create_table('spreadsheet_type_column');
 
-        // ==================
-        // spreadsheet_status
-        // ==================
-
-        // 1 = "Created" (record created in spreadsheet table)
-        // 2 = "Loaded" (records loaded as-is in spreadsheet_row)
-        // 3 = "Configured" (records created in spreadsheet_column)
-        // 4 = "Imported" (records created in related tables like fee_range, zone_item, etc)
+        // =========================
+        //   spreadsheet_profile
+        // =========================
 
         $this->dbforge->add_field('id');
-        $this->dbforge->add_field("code varchar(100) NOT NULL");
-        $this->dbforge->add_field("name varchar(100) NOT NULL");
-        $this->dbforge->create_table('spreadsheet_status');
+        $this->dbforge->add_field('spreadsheet_type_id int NOT NULL');
+        $this->dbforge->add_field("courier_id int NULL");
+        $this->dbforge->add_field("service_id int NULL");
+        $this->dbforge->add_field("seller_id int NULL");
+        $this->dbforge->add_field("ignore_first_row int NOT NULL DEFAULT 0");
+        $this->dbforge->add_field("fields_delimiter varchar(20) NOT NULL DEFAULT 'semicolon'");
+        $this->dbforge->add_field("decimals_delimiter varchar(20) NOT NULL DEFAULT 'comma'");
+        $this->dbforge->create_table('spreadsheet_profile');
+
+        // ==============================
+        //   spreadsheet_profile_column
+        // ==============================
+
+        $this->dbforge->add_field('id');
+        $this->dbforge->add_field('spreadsheet_profile_id int NOT NULL');
+        $this->dbforge->add_field("spreadsheet_type_column_id int NOT NULL");
+        $this->dbforge->add_field("spreadsheet_column_name char(1) NULL");
+        $this->dbforge->add_field("service_id int NULL");
+        $this->dbforge->add_field("zone_id int NULL");
+        $this->dbforge->create_table('spreadsheet_profile_column');
 
         // ===============
         //   spreadsheet
@@ -186,14 +199,11 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("path varchar(250) NOT NULL");
         $this->dbforge->add_field("spreadsheet_type_id int NOT NULL");
-        $this->dbforge->add_field("spreadsheet_status_id int NOT NULL");
+        $this->dbforge->add_field("imported int NOT NULL");
         $this->dbforge->add_field("courier_id int NULL");
         $this->dbforge->add_field("service_id int NULL");
+        $this->dbforge->add_field("seller_id int NULL");
         $this->dbforge->add_field("year int NOT NULL");
-        $this->dbforge->add_field("ignore_first_row bit NOT NULL DEFAULT 0");
-        $this->dbforge->add_field("fields_delimiter varchar(20) NOT NULL DEFAULT 'semicolon'");
-        $this->dbforge->add_field("decimals_delimiter varchar(20) NOT NULL DEFAULT 'comma'");
-        $this->dbforge->add_field("last_column char(1) NULL");
         $this->dbforge->add_field("updated_date timestamp NOT NULL DEFAULT 0");
         $this->dbforge->create_table('spreadsheet');
 

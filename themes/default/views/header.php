@@ -596,9 +596,13 @@
                                         class="chevron closed"></span></a>
                                 <ul>
                                         <li id="system_settings_spreadsheets"><a class="submenu"
+                                                href="<?= site_url('shipeu/spreadsheetProfiles') ?>"><i
+                                                    class="fa fa-cog"></i><span
+                                                    class="text"> <?= "Configuration"; ?></span></a></li>
+                                        <li id="system_settings_spreadsheets"><a class="submenu"
                                                 href="<?= site_url('shipeu/spreadsheets') ?>"><i
-                                                    class="fa fa-download"></i><span
-                                                    class="text"> <?= "Import"; ?></span></a></li>
+                                                    class="fa fa-file-excel-o"></i><span
+                                                    class="text"> <?= "Spreadsheets"; ?></span></a></li>
                                 </ul>
                             </li>
 

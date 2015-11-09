@@ -639,49 +639,26 @@ class Shipeu extends MY_Controller
 
     }
 
-    public function spreadsheets()
+    public function spreadsheetProfiles()
     {
         $this->sma->checkPermissions();
 
-        $pageTitle = 'Spreadsheet';
+        $pageTitle = 'Spreadsheet Configurations';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
         try {
             $crud = new grocery_CRUD();
 
             $crud->set_theme('datatables');
-            $crud->set_table('spreadsheet');
+            $crud->set_table('spreadsheet_profile');
             $crud->set_subject($pageTitle);
-            $crud->columns('name', 'spreadsheet_type_id', 'spreadsheet_status_id', 'courier_id', 'service_id', 'year', 'ignore_first_row', 'fields_delimiter', 'decimals_delimiter');
+            $crud->columns('spreadsheet_type_id', 'courier_id', 'service_id', 'seller_id', 'ignore_first_row', 'fields_delimiter', 'decimals_delimiter');
 
             // Customize actions
-            $crud->unset_edit();
-            $crud->unset_delete();
-            $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
-            $crud->add_action('Configure', '', '','ui-icon-info', array($this,'redirectSpreadsheetConfigure'));
-
-            $spreadsheetStatusCreatedId = $this->db->query("SELECT id FROM spreadsheet_status WHERE code = 'created'")->row()->id;
-
-            $crud->change_field_type('name','invisible');
-            $crud->field_type('spreadsheet_status_id', 'hidden', $spreadsheetStatusCreatedId);
-            $crud->change_field_type('updated_date','invisible');
-
-            $crud->callback_before_insert(array($this,'spreadsheet_before_insert'));
-            $crud->callback_after_insert(array($this,'spreadsheet_after_insert'));
-
-            /// Upload field
-            $crud->set_field_upload('path','assets/uploads/csv', 'csv');
-            $crud->display_as('path','Upload csv');
-            $crud->set_rules('path','Upload csv',['required']);
-            $crud->callback_after_upload(array($this,'spreadsheet_after_upload'));
-
-            $crud->unset_fields('name', 'spreadsheet_status_id', 'last_column', 'updated_date');
+            $crud->add_action('Columns', '', '','ui-icon-info', array($this,'redirectSpreadsheetProfileColumns'));
 
             $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
             $crud->display_as('spreadsheet_type_id','Type');
-
-            $crud->set_relation('spreadsheet_status_id','spreadsheet_status','{id} - {name}');
-            $crud->display_as('spreadsheet_status_id','Status');
 
             $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
             $crud->display_as('courier_id','Courier');
@@ -689,8 +666,8 @@ class Shipeu extends MY_Controller
             $crud->set_relation('service_id','service','{name}', null, 'name ASC');
             $crud->display_as('service_id','Service');
 
-            $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
-            $crud->set_rules('year','Spreadsheet Year',['integer', 'required']);
+            $crud->set_relation('seller_id','seller','{name}', null, 'name ASC');
+            $crud->display_as('seller_id','Seller');
 
             $crud->field_type('ignore_first_row', 'dropdown', [0 => 'No', 1=>'Yes']);
             $crud->display_as('ignore_first_row', 'Ignore First Row');
@@ -719,16 +696,166 @@ class Shipeu extends MY_Controller
 
     }
 
+    public function spreadsheetProfileColumns()
+    {
+        $this->sma->checkPermissions();
+
+        $this->load->library('session');
+
+        $pageTitle = 'Spreadsheet Columns';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('spreadsheet_profile_column');
+            $crud->set_subject($pageTitle);
+            $crud->columns('spreadsheet_type_column_id', 'spreadsheet_column_name', 'service_id', 'zone_id');
+
+            $crud->callback_after_insert(array($this,'spreadsheet_profile_column_after_insert'));
+
+            $crud->unset_fields('spreadsheet_profile_id');
+
+            if (isset($_GET)) {
+                if (isset($_GET['spreadsheetProfileId'])) {
+                    // Store fee_id (provided via url) in session
+                    $spreadsheetProfileId = $_GET['spreadsheetProfileId'];
+                    $this->session->set_userdata(['spreadsheetProfileId' => $spreadsheetProfileId]);
+                }
+            }
+
+            // Set fee_id as hidden field (from session)
+            $userData = $this->session->get_userdata();
+            $spreadsheetProfileId = $userData['spreadsheetProfileId'];
+            $crud->field_type('spreadsheetProfileId', 'hidden', $spreadsheetProfileId);
+
+            // Filter by current spreadsheet_profile_id
+            $crud->where('spreadsheet_profile_id', $spreadsheetProfileId);
+
+            $crud->set_relation('spreadsheet_type_column_id','spreadsheet_type_column','{name}');
+            $crud->display_as('spreadsheet_type_column_id','Column Type');
+
+            $columns = [
+                'a' => 'Column A',
+                'b' => 'Column B',
+                'c' => 'Column C',
+                'd' => 'Column D',
+                'e' => 'Column E',
+                'f' => 'Column F',
+                'g' => 'Column G',
+                'h' => 'Column H',
+                'i' => 'Column I',
+                'j' => 'Column J',
+                'k' => 'Column K',
+                'l' => 'Column L',
+                'm' => 'Column M',
+                'n' => 'Column N',
+            ];
+
+            $crud->field_type('spreadsheet_column_name', 'dropdown', $columns);
+            $crud->display_as('spreadsheet_column_name', 'Column Name');
+
+            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
+            $crud->display_as('service_id','Service');
+
+            $crud->set_relation('zone_id','zone','{name}', null, 'name ASC');
+            $crud->display_as('zone_id','Zone');
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+
+    }
+
+    function spreadsheet_profile_column_after_insert($post_array, $primary_key)
+    {
+        $sessionData = $this->session->get_userdata();
+        $spreadsheetProfileId = $sessionData['spreadsheetProfileId'];
+
+        $this->db->query("UPDATE spreadsheet_profile_column SET spreadsheet_profile_id = " . $spreadsheetProfileId . " WHERE id = " . $primary_key);
+    }
+
+    // Redirect to see spreadsheet profile columns
+    function redirectSpreadsheetProfileColumns($primary_key , $row)
+    {
+        return site_url('shipeu/spreadsheetProfileColumns?spreadsheetProfileId='.$primary_key);
+    }
+
+    public function spreadsheets()
+    {
+        $this->sma->checkPermissions();
+
+        $pageTitle = 'Spreadsheet';
+        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        try {
+            $crud = new grocery_CRUD();
+
+            $crud->set_theme('datatables');
+            $crud->set_table('spreadsheet');
+            $crud->set_subject($pageTitle);
+            $crud->columns('name', 'spreadsheet_type_id', 'courier_id', 'service_id', 'year', 'imported');
+
+            // Customize actions
+            $crud->unset_edit();
+            $crud->unset_delete();
+            $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
+            $crud->add_action('Import', '', '','ui-icon-info', array($this,'redirectSpreadsheetImport'));
+
+            $crud->change_field_type('name','invisible');
+            $crud->change_field_type('updated_date','invisible');
+
+            $crud->callback_before_insert(array($this,'spreadsheet_before_insert'));
+            $crud->callback_after_insert(array($this,'spreadsheet_after_insert'));
+
+            /// Upload field
+            $crud->set_field_upload('path','assets/uploads/csv', 'csv');
+            $crud->display_as('path','Upload csv');
+            $crud->set_rules('path','Upload csv',['required']);
+            $crud->callback_after_upload(array($this,'spreadsheet_after_upload'));
+
+            $crud->unset_fields('name', 'imported', 'last_column', 'updated_date');
+
+            $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
+            $crud->display_as('spreadsheet_type_id','Type');
+
+            $crud->field_type('imported', 'dropdown', [0 => 'No', 1=>'Yes']);
+            $crud->display_as('imported', 'Imported');
+
+            $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
+            $crud->display_as('courier_id','Courier');
+
+            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
+            $crud->display_as('service_id','Service');
+
+            $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
+            $crud->set_rules('year','Spreadsheet Year',['integer', 'required']);
+
+            $output = $crud->render();
+
+            $this->renderView($pageTitle, $output);
+
+        } catch (Exception $e) {
+            show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
+        }
+
+    }
+
     // Redirect to see spreadsheet rows
     function redirectSpreadsheetRows($primary_key , $row)
     {
         return site_url('shipeu/spreadsheetRows?spreadsheetId='.$primary_key);
     }
 
-    // Redirect to see spreadsheet configure
-    function redirectSpreadsheetConfigure($primary_key , $row)
+    // Redirect to import rows
+    function redirectSpreadsheetImport($primary_key , $row)
     {
-        return site_url('shipeu/spreadsheetConfigure?spreadsheetId='.$primary_key);
+        return site_url('shipeu/spreadsheetImport?spreadsheetId='.$primary_key);
     }
 
     function spreadsheet_after_upload($uploader_response, $field_info, $files_to_upload)
@@ -744,7 +871,7 @@ class Shipeu extends MY_Controller
 
     function spreadsheet_before_insert($post_array)
     {
-        $post_array['spreadsheet_status_id'] = 1;
+        $post_array['imported'] = 0;
         $sessionData = $this->session->get_userdata();
         $post_array['name'] = $sessionData['uploaded_file_name'];
         $post_array['path'] = $sessionData['uploaded_file_path'];
@@ -839,9 +966,6 @@ class Shipeu extends MY_Controller
 
         fclose($handle);
 
-        $spreadsheetStatusLoadedId = $this->db->query("SELECT id FROM spreadsheet_status WHERE code = 'loaded'")->row()->id;
-        $this->db->query("UPDATE spreadsheet SET name = '" . $fileName . "', spreadsheet_status_id = " . $spreadsheetStatusLoadedId . " where id = " . $primary_key);
-
         return $post_array;
     }
 
@@ -860,7 +984,7 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('spreadsheet_row');
             $crud->set_subject($pageTitle);
-            $crud->columns('row_number', 'column_a', 'column_b', 'column_c', 'column_d', 'column_e', 'column_f', 'column_g', 'column_h', 'column_i', 'column_j', 'column_k');
+            $crud->columns('row_number', 'column_a', 'column_b', 'column_c', 'column_d', 'column_e', 'column_f', 'column_g', 'column_h', 'column_i', 'column_j', 'column_k', 'column_l', 'column_m');
 
             // Read only page
             $crud->unset_edit();
@@ -879,7 +1003,7 @@ class Shipeu extends MY_Controller
 
             // Set fee_id as hidden field (from session)
             $userData = $this->session->get_userdata();
-            $feeId = $userData['spreadsheetId'];
+            $spreadsheetId = $userData['spreadsheetId'];
             $crud->field_type('spreadsheetId', 'hidden', $spreadsheetId);
 
             // Filter by current fee_id
