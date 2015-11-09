@@ -526,6 +526,13 @@ class grocery_CRUD_Model  extends CI_Model  {
 
     function get_primary_key($table_name = null)
     {
+		// If table name starts with vw_, is a view
+		// we change to their base table to retrieve
+		// the primary key
+		if (substr($table_name, 0, 3) == 'vw_') {
+			$table_name = substr($table_name, 3);
+		}
+
     	if($table_name == null)
     	{
     		if(isset($this->primary_keys[$this->table_name]))

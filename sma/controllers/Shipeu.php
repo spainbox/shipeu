@@ -103,9 +103,6 @@ class Shipeu extends MY_Controller
             $crud->set_relation('country_id','country','{code} - {name}', null, 'code ASC');
             $crud->display_as('country_id','Country');
 
-            $crud->callback_after_insert(array($this, 'states_after_insert'));
-            $crud->callback_after_update(array($this, 'states_after_update'));
-
             $output = $crud->render();
 
             $this->renderView($pageTitle, $output);
@@ -113,29 +110,6 @@ class Shipeu extends MY_Controller
         } catch (Exception $e) {
             show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
         }
-    }
-
-    public function states_after_insert($post_array, $primary_key)
-    {
-        $this->states_copy_country_name($primary_key);
-        return true;
-    }
-
-    public function states_after_update($post_array, $primary_key)
-    {
-        $this->states_copy_country_name($primary_key);
-        return true;
-    }
-
-    private function states_copy_country_name($stateId)
-    {
-        $countryId = $this->db->query("SELECT country_id FROM state WHERE id =" . $stateId)->row()->country_id;
-
-        $countryName = $this->db->query("SELECT name FROM country WHERE id =" . $countryId)->row()->name;
-
-        $this->db->update('state', ['copy_country_name' => $countryName], ['id' => $stateId]);
-
-        return true;
     }
 
     public function cities()
@@ -154,7 +128,7 @@ class Shipeu extends MY_Controller
             $crud->required_fields('name', 'state_id');
             $crud->columns('name', 'state_id');
 
-            $crud->set_relation('state_id','state', '{copy_country_name} - {name}', null, 'copy_country_name, name ASC');
+            $crud->set_relation('state_id','vw_state', '{countryName} - {name}', null, 'countryName, name ASC');
             $crud->display_as('state_id', 'State');
 
             $output = $crud->render();
@@ -377,9 +351,9 @@ class Shipeu extends MY_Controller
             $crud->set_table('zone_item');
             $crud->set_subject($pageTitle);
             $crud->required_fields('zone_id');
-            $crud->columns('zone_id', 'country_id', 'state_id');
+            $crud->columns('zone_id', 'country_id', 'state_id', 'postcode_from', 'postcode_to');
 
-            $crud->set_relation('zone_id','zone','{name}', null, 'name ASC');
+            $crud->set_relation('zone_id','vw_zone','{serviceCode} | {name}', null, 'serviceCode ASC, name ASC');
             $crud->display_as('zone_id','Zone');
 
             $crud->set_relation('country_id','country','{name}', null, 'code ASC');
@@ -679,10 +653,17 @@ class Shipeu extends MY_Controller
             $crud->set_table('spreadsheet');
             $crud->set_subject($pageTitle);
             $crud->columns('name', 'spreadsheet_type_id', 'spreadsheet_status_id', 'courier_id', 'service_id', 'year', 'ignore_first_row', 'fields_delimiter', 'decimals_delimiter');
+
+            // Customize actions
+            $crud->unset_edit();
+            $crud->unset_delete();
             $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
+            $crud->add_action('Configure', '', '','ui-icon-info', array($this,'redirectSpreadsheetConfigure'));
+
+            $spreadsheetStatusCreatedId = $this->db->query("SELECT id FROM spreadsheet_status WHERE code = 'created'")->row()->id;
 
             $crud->change_field_type('name','invisible');
-            $crud->change_field_type('spreadsheet_status_id','invisible');
+            $crud->field_type('spreadsheet_status_id', 'hidden', $spreadsheetStatusCreatedId);
             $crud->change_field_type('updated_date','invisible');
 
             $crud->callback_before_insert(array($this,'spreadsheet_before_insert'));
@@ -699,7 +680,7 @@ class Shipeu extends MY_Controller
             $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
             $crud->display_as('spreadsheet_type_id','Type');
 
-            $crud->set_relation('spreadsheet_status_id','spreadsheet_status','{name}');
+            $crud->set_relation('spreadsheet_status_id','spreadsheet_status','{id} - {name}');
             $crud->display_as('spreadsheet_status_id','Status');
 
             $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
@@ -738,6 +719,18 @@ class Shipeu extends MY_Controller
 
     }
 
+    // Redirect to see spreadsheet rows
+    function redirectSpreadsheetRows($primary_key , $row)
+    {
+        return site_url('shipeu/spreadsheetRows?spreadsheetId='.$primary_key);
+    }
+
+    // Redirect to see spreadsheet configure
+    function redirectSpreadsheetConfigure($primary_key , $row)
+    {
+        return site_url('shipeu/spreadsheetConfigure?spreadsheetId='.$primary_key);
+    }
+
     function spreadsheet_after_upload($uploader_response, $field_info, $files_to_upload)
     {
         $fileName = $uploader_response[0]->name;
@@ -764,6 +757,8 @@ class Shipeu extends MY_Controller
     {
         $sessionData = $this->session->get_userdata();
         $filePath = $sessionData['uploaded_file_path'];
+        $fileName = $post_array['name'];
+        $fileName = substr($fileName, strpos($fileName, "-") + 1);
         $handle = fopen($filePath, "r");
 
         $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id =" . $primary_key)->row();
@@ -844,6 +839,9 @@ class Shipeu extends MY_Controller
 
         fclose($handle);
 
+        $spreadsheetStatusLoadedId = $this->db->query("SELECT id FROM spreadsheet_status WHERE code = 'loaded'")->row()->id;
+        $this->db->query("UPDATE spreadsheet SET name = '" . $fileName . "', spreadsheet_status_id = " . $spreadsheetStatusLoadedId . " where id = " . $primary_key);
+
         return $post_array;
     }
 
@@ -895,12 +893,6 @@ class Shipeu extends MY_Controller
             show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
         }
 
-    }
-
-    // Redirect to see spreadsheet rows
-    function redirectSpreadsheetRows($primary_key , $row)
-    {
-        return site_url('shipeu/spreadsheetRows?spreadsheetId='.$primary_key);
     }
 
     public function shipments()

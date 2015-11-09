@@ -36,13 +36,15 @@ class Migration_Update309 extends CI_Migration
 
 
         // #################################################################
+        //
         //                     Add new ShipEU tables
         //
-        // NOTE: Fields started with "copy_" are denormalized ("copied")
-        //       fields used because Grocery CRUD only support show values
-        //       from directly related tables. So, since the list of States
-        //       should by shown on the Cities page, we add a new field
-        //       named "copy_country_name" on the "state" table.
+        // NOTE: We also created some views because Grocery CRUD only supports
+        //       the display of values from *directly* related tables. In that
+        //       case, the view name should be "vw_<base-table>". For example,
+        //       vw_state (see tweak on get_primary_key function on the
+        //       Grocery_crud_model class)
+        //
         // #################################################################
 
         // =============
@@ -72,7 +74,6 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("code varchar(100) NOT NULL");
         $this->dbforge->add_field("name varchar(100) NOT NULL");
         $this->dbforge->add_field("country_id int NOT NULL");
-        $this->dbforge->add_field("copy_country_name varchar(100) NOT NULL");
         $this->dbforge->create_table('state');
 
         // ========
@@ -275,6 +276,8 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("zone_id int NOT NULL");
         $this->dbforge->add_field("state_id int NULL");   // Any state of any country can be added to a zone
         $this->dbforge->add_field("country_id int NULL"); // Any country can be added to a zone
+        $this->dbforge->add_field("postcode_from varchar(20) NULL"); // Any country can be added to a zone
+        $this->dbforge->add_field("postcode_to varchar(20) NULL"); // Any country can be added to a zone
         $this->dbforge->create_table('zone_item');
 
         // ==========
@@ -426,6 +429,30 @@ class Migration_Update309 extends CI_Migration
             INNER JOIN courier ON service.courier_id = courier.id
             WHERE spreadsheet_id IS NOT NULL
         ');
+
+        $this->db->query('
+            CREATE VIEW vw_state AS
+            SELECT state.id,
+                state.code,
+                state.name,
+                state.country_id,
+                country.name as countryName
+            FROM state
+            INNER JOIN country ON state.country_id = country.id
+        ');
+
+        $this->db->query('
+            CREATE VIEW vw_zone AS
+            SELECT
+                zone.id,
+                zone.code,
+                zone.name,
+                zone.service_id,
+                service.code as serviceCode
+            FROM zone
+            INNER JOIN service ON zone.service_id = service.id
+        ');
+
     }
 
     public function down()
