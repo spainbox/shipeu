@@ -702,6 +702,99 @@ class Shipeu extends MY_Controller
 
         $this->load->library('session');
 
+        if (isset($_GET)) {
+            if (isset($_GET['spreadsheetProfileId'])) {
+                // Store fee_id (provided via url) in session
+                $spreadsheetProfileId = $_GET['spreadsheetProfileId'];
+                $this->session->set_userdata(['spreadsheetProfileId' => $spreadsheetProfileId]);
+            }
+        }
+
+        // Set spreadsheet_profile_id as hidden field (from session)
+        $userData = $this->session->get_userdata();
+        $spreadsheetProfileId = $userData['spreadsheetProfileId'];
+
+        // To make the edition/configuration of the columns simpler,
+        // we will create a flat, denormalyzed and temporary table
+        // named spreadsheet_profile_columns_temp. This is because
+        // some columns should be configured "per service" or "per zone",
+        // so just 1 column type record on spreadsheet_type_column
+        // should be "expanded" to several columns (one per each service
+        // or zone). That's why we create this temp table
+
+        // Create temporary table spreadsheet_profile_temp
+        $this->db->query("DROP TABLE IF EXISTS spreadsheet_profile_temp");
+        $createTable = "CREATE TABLE spreadsheet_profile_temp (id int NOT NULL AUTO_INCREMENT, spreadsheet_profile_id int NOT NULL, ";
+        $insertRecord = "INSERT INTO spreadsheet_profile_temp SELECT NULL, " . $spreadsheetProfileId;
+
+        $spreadsheetProfile = $this->db->query("SELECT * FROM spreadsheet_profile WHERE id =" . $spreadsheetProfileId)->row();
+        $spreadsheetTypeId = $spreadsheetProfile->spreadsheet_type_id;
+        $spreadsheetTypeColumns = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE spreadsheet_type_id =" . $spreadsheetTypeId)->result();
+
+        $fields = array();
+        foreach ($spreadsheetTypeColumns as $spreadsheetTypeColumn) {
+            if ($spreadsheetTypeColumn->per_service == 0 and $spreadsheetTypeColumn->per_zone == 0) {
+                $fieldName = 'column_' . $spreadsheetTypeColumn->id . '_unique';
+                $fieldLabel = $spreadsheetTypeColumn->name;
+                $fields[$fieldName] = $fieldLabel;
+
+                $fieldValue = '';
+                $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id)->result();
+                if (!empty($spreadsheetProfileColumn)) {
+                    $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
+                }
+
+                $createTable .= $fieldName . " char(1) NOT NULL, ";
+                $insertRecord .= ", '" . $fieldValue . "'";
+            } elseif ($spreadsheetTypeColumn->per_zone == 1) {
+                $zones = $this->db->query("SELECT * FROM zone WHERE service_id = " . $spreadsheetProfile->service_id . " ORDER BY name")->result();;
+                foreach ($zones as $zone) {
+                    $fieldName = 'column_' . $spreadsheetTypeColumn->id . '_zone_' . $zone->id;
+                    $fieldLabel = 'Zone ' . $zone->name;
+                    $fields[$fieldName] = $fieldLabel;
+
+                    $fieldValue = '';
+                    $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id . " AND zone_id = " . $zone->id)->result();
+                    if (!empty($spreadsheetProfileColumn)) {
+                        $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
+                    }
+
+                    $createTable .= $fieldName . " char(1) NOT NULL, ";
+                    $insertRecord .= ", '" . $fieldValue . "'";
+                }
+            } else {
+                $services = $this->db->query("SELECT * FROM service WHERE courier_id = " . $spreadsheetProfile->courier_id . " ORDER BY name")->result();
+                foreach ($services as $service) {
+                    $fieldName = 'column_' . $spreadsheetTypeColumn->id . '_service_' . $service->id;
+                    $fieldLabel = 'Service ' . $service->name;
+                    $fields[$fieldName] = $fieldLabel;
+
+                    $fieldValue = '';
+                    $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id . " AND service_id = " . $service->id)->result();
+                    if (!empty($spreadsheetProfileColumn)) {
+                        $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
+                    }
+
+                    $createTable .= $fieldName . " char(1) NOT NULL, ";
+                    $insertRecord .= ", '" . $fieldValue . "'";
+                }
+            }
+        }
+
+        // Close SQL statements and execute
+        $createTable .= ' PRIMARY KEY (id));';
+        $insertRecord .= ';';
+        $this->db->query($createTable);
+        $this->db->query($insertRecord);
+
+        $fieldNames = array();
+        foreach ($fields as $fieldName => $fieldLabel) {
+            if ($fieldName != 'spreadsheet_profile_id') {
+                $fieldNames[] = $fieldName;
+            }
+        }
+
+        // Load GroceryCrud configuration
         $pageTitle = 'Spreadsheet Columns';
         $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
 
@@ -709,32 +802,20 @@ class Shipeu extends MY_Controller
             $crud = new grocery_CRUD();
 
             $crud->set_theme('datatables');
-            $crud->set_table('spreadsheet_profile_column');
+            $crud->set_table('spreadsheet_profile_temp');
             $crud->set_subject($pageTitle);
-            $crud->columns('spreadsheet_type_column_id', 'spreadsheet_column_name', 'service_id', 'zone_id');
+            $crud->columns($fieldNames);
 
-            $crud->callback_after_insert(array($this,'spreadsheet_profile_column_after_insert'));
+            $crud->unset_add();
+            $crud->unset_delete();
+
+            $crud->callback_after_update(array($this,'spreadsheet_profile_column_after_update'));
 
             $crud->unset_fields('spreadsheet_profile_id');
-
-            if (isset($_GET)) {
-                if (isset($_GET['spreadsheetProfileId'])) {
-                    // Store fee_id (provided via url) in session
-                    $spreadsheetProfileId = $_GET['spreadsheetProfileId'];
-                    $this->session->set_userdata(['spreadsheetProfileId' => $spreadsheetProfileId]);
-                }
-            }
-
-            // Set fee_id as hidden field (from session)
-            $userData = $this->session->get_userdata();
-            $spreadsheetProfileId = $userData['spreadsheetProfileId'];
             $crud->field_type('spreadsheetProfileId', 'hidden', $spreadsheetProfileId);
 
             // Filter by current spreadsheet_profile_id
             $crud->where('spreadsheet_profile_id', $spreadsheetProfileId);
-
-            $crud->set_relation('spreadsheet_type_column_id','spreadsheet_type_column','{name}');
-            $crud->display_as('spreadsheet_type_column_id','Column Type');
 
             $columns = [
                 'a' => 'Column A',
@@ -753,14 +834,10 @@ class Shipeu extends MY_Controller
                 'n' => 'Column N',
             ];
 
-            $crud->field_type('spreadsheet_column_name', 'dropdown', $columns);
-            $crud->display_as('spreadsheet_column_name', 'Column Name');
-
-            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
-            $crud->display_as('service_id','Service');
-
-            $crud->set_relation('zone_id','zone','{name}', null, 'name ASC');
-            $crud->display_as('zone_id','Zone');
+            foreach ($fields as $fieldName => $fieldLabel) {
+                $crud->field_type($fieldName, 'dropdown', $columns);
+                $crud->display_as($fieldName, $fieldLabel);
+            }
 
             $output = $crud->render();
 
@@ -772,12 +849,37 @@ class Shipeu extends MY_Controller
 
     }
 
-    function spreadsheet_profile_column_after_insert($post_array, $primary_key)
+    function spreadsheet_profile_column_after_update($post_array, $primary_key)
     {
         $sessionData = $this->session->get_userdata();
         $spreadsheetProfileId = $sessionData['spreadsheetProfileId'];
 
-        $this->db->query("UPDATE spreadsheet_profile_column SET spreadsheet_profile_id = " . $spreadsheetProfileId . " WHERE id = " . $primary_key);
+        foreach ($post_array as $fieldName => $fieldValue) {
+            $fieldNameParts = explode('_', $fieldName);
+            $spreadsheetTypeColumnId = $fieldNameParts[1];
+            $delete = "DELETE FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumnId;
+            $insert = "INSERT INTO spreadsheet_profile_column SELECT NULL, " . $spreadsheetProfileId . ", " . $spreadsheetTypeColumnId . ", '" . $fieldValue . "'";
+
+            if ($fieldNameParts[2] == 'unique') {
+                $insert .= ", NULL, NULL";
+            }
+
+            if ($fieldNameParts[2] == 'service') {
+                $serviceId = $fieldNameParts[3];
+                $delete .= ' AND service_id = ' . $serviceId;
+                $insert .= ", $serviceId, NULL";
+            }
+
+            if ($fieldNameParts[2] == 'zone') {
+                $zoneId = $fieldNameParts[3];
+                $delete .= ' AND zone_id = ' . $zoneId;
+                $insert .= ", NULL, $zoneId";
+            }
+
+            $this->db->query($delete);
+            $this->db->query($insert);
+        }
+
     }
 
     // Redirect to see spreadsheet profile columns
