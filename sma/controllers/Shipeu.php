@@ -739,7 +739,7 @@ class Shipeu extends MY_Controller
                 $fields[$fieldName] = $fieldLabel;
 
                 $fieldValue = '';
-                $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id)->result();
+                $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfileId . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id)->row();
                 if (!empty($spreadsheetProfileColumn)) {
                     $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
                 }
@@ -754,7 +754,7 @@ class Shipeu extends MY_Controller
                     $fields[$fieldName] = $fieldLabel;
 
                     $fieldValue = '';
-                    $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id . " AND zone_id = " . $zone->id)->result();
+                    $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfileId . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id . " AND zone_id = " . $zone->id)->row();
                     if (!empty($spreadsheetProfileColumn)) {
                         $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
                     }
@@ -770,7 +770,7 @@ class Shipeu extends MY_Controller
                     $fields[$fieldName] = $fieldLabel;
 
                     $fieldValue = '';
-                    $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id . " AND service_id = " . $service->id)->result();
+                    $spreadsheetProfileColumn = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfileId . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id . " AND service_id = " . $service->id)->row();
                     if (!empty($spreadsheetProfileColumn)) {
                         $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
                     }
@@ -796,7 +796,21 @@ class Shipeu extends MY_Controller
 
         // Load GroceryCrud configuration
         $pageTitle = 'Spreadsheet Columns';
-        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        // Prepare breadcrumbs
+        $this->bc = array();
+        $this->bc[] = [
+            'link' => '',
+            'page' => 'Home',
+        ];
+        $this->bc[] = [
+            'link' => 'shipeu/spreadsheetProfiles',
+            'page' => 'Spreadsheet Configurations',
+        ];
+        $this->bc[] = [
+            'link' => 'shipeu/' . __FUNCTION__,
+            'page' => $pageTitle,
+        ];
 
         try {
             $crud = new grocery_CRUD();
@@ -934,6 +948,9 @@ class Shipeu extends MY_Controller
 
             $crud->set_relation('service_id','service','{name}', null, 'name ASC');
             $crud->display_as('service_id','Service');
+
+            $crud->set_relation('seller_id','seller','{name}', null, 'name ASC');
+            $crud->display_as('seller_id','Seller');
 
             $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
             $crud->set_rules('year','Spreadsheet Year',['integer', 'required']);
