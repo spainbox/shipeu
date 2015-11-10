@@ -1590,12 +1590,14 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 			$data->list = array();
 		}
 
-		foreach($data->list as $num_row => $row)
-		{
-            $data->list[$num_row]->primary_key_value = $row->{$data->primary_key};
-			$data->list[$num_row]->edit_url = $data->edit_url.'/'.$row->{$data->primary_key};
-			$data->list[$num_row]->delete_url = $data->delete_url.'/'.$row->{$data->primary_key};
-			$data->list[$num_row]->read_url = $data->read_url.'/'.$row->{$data->primary_key};
+		if (!empty($data->primary_key)) {
+			foreach($data->list as $num_row => $row)
+			{
+					$data->list[$num_row]->primary_key_value = $row->{$data->primary_key};
+				$data->list[$num_row]->edit_url = $data->edit_url.'/'.$row->{$data->primary_key};
+				$data->list[$num_row]->delete_url = $data->delete_url.'/'.$row->{$data->primary_key};
+				$data->list[$num_row]->read_url = $data->read_url.'/'.$row->{$data->primary_key};
+			}
 		}
 
 		if(!$ajax)

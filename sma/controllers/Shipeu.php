@@ -391,6 +391,7 @@ class Shipeu extends MY_Controller
             $crud->unset_add();
             $crud->unset_delete();
             $crud->unset_edit();
+            $crud->unset_read();
 
             $output = $crud->render();
 
@@ -915,11 +916,10 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('spreadsheet');
             $crud->set_subject($pageTitle);
-            $crud->columns('name', 'spreadsheet_type_id', 'courier_id', 'service_id', 'year', 'imported');
+            $crud->columns('spreadsheet_type_id', 'name', 'courier_id', 'service_id', 'seller_id', 'year', 'imported');
 
             // Customize actions
             $crud->unset_edit();
-            $crud->unset_delete();
             $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
             $crud->add_action('Import', '', '','ui-icon-info', array($this,'redirectSpreadsheetImport'));
 
@@ -929,16 +929,16 @@ class Shipeu extends MY_Controller
             $crud->callback_before_insert(array($this,'spreadsheet_before_insert'));
             $crud->callback_after_insert(array($this,'spreadsheet_after_insert'));
 
+            $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
+            $crud->display_as('spreadsheet_type_id','Type');
+
+            $crud->unset_fields('name', 'imported', 'last_column', 'updated_date');
+
             /// Upload field
             $crud->set_field_upload('path','assets/uploads/csv', 'csv');
             $crud->display_as('path','Upload csv');
             $crud->set_rules('path','Upload csv',['required']);
             $crud->callback_after_upload(array($this,'spreadsheet_after_upload'));
-
-            $crud->unset_fields('name', 'imported', 'last_column', 'updated_date');
-
-            $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
-            $crud->display_as('spreadsheet_type_id','Type');
 
             $crud->field_type('imported', 'dropdown', [0 => 'No', 1=>'Yes']);
             $crud->display_as('imported', 'Imported');
@@ -990,8 +990,15 @@ class Shipeu extends MY_Controller
 
     function spreadsheet_before_insert($post_array)
     {
-        $post_array['imported'] = 0;
         $sessionData = $this->session->get_userdata();
+
+        // Validate if there are a profile defined for this spreadsheet (with this configuration)
+        $spreadsheetProfile = $this->getSpreadsheetProfile($post_array);
+        if (empty(($spreadsheetProfile))) {
+            return false;
+        }
+
+        $post_array['imported'] = 0;
         $post_array['name'] = $sessionData['uploaded_file_name'];
         $post_array['path'] = $sessionData['uploaded_file_path'];
         $post_array['updated_date'] = date('Y-d-m');
@@ -1004,20 +1011,22 @@ class Shipeu extends MY_Controller
         $sessionData = $this->session->get_userdata();
         $filePath = $sessionData['uploaded_file_path'];
         $fileName = $post_array['name'];
-        $fileName = substr($fileName, strpos($fileName, "-") + 1);
+        $fileName = strtoupper(substr($fileName, strpos($fileName, "-") + 1));
+        $this->db->query("UPDATE spreadsheet SET name = '$fileName' WHERE id = $primary_key");
+
         $handle = fopen($filePath, "r");
 
-        $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id =" . $primary_key)->row();
+        $spreadsheetProfile = $this->getSpreadsheetProfile($primary_key);
 
         // Configure first line/row to read
-        if ($spreadsheet->ignore_first_row == 0) {
+        if ($spreadsheetProfile->ignore_first_row == 0) {
             $initialLine = 1;
         } else {
             $initialLine = 2;
         }
 
         // Configure delimiter
-        switch ($spreadsheet->fields_delimiter) {
+        switch ($spreadsheetProfile->fields_delimiter) {
             case 'comma':
                 $fieldsDelimiter = ',';
                 break;
@@ -1055,7 +1064,7 @@ class Shipeu extends MY_Controller
             {
                 // We will store numeric data using comma as decimal separator
                 $standardDecimalSeparator = ',';
-                switch ($spreadsheet->decimals_delimiter) {
+                switch ($spreadsheetProfile->decimals_delimiter) {
                     case 'comma':
                         $value = str_replace(',', $standardDecimalSeparator, $value);
                         break;
@@ -1094,8 +1103,34 @@ class Shipeu extends MY_Controller
 
         $this->sma->checkPermissions();
 
+        if (isset($_GET)) {
+            if (isset($_GET['spreadsheetId'])) {
+                // Store fee_id (provided via url) in session
+                $spreadsheetId = $_GET['spreadsheetId'];
+                $this->session->set_userdata(['spreadsheetId' => $spreadsheetId]);
+            }
+        }
+
+        // Set fee_id as hidden field (from session)
+        $userData = $this->session->get_userdata();
+        $spreadsheetId = $userData['spreadsheetId'];
+
         $pageTitle = 'Spreadsheet Content';
-        $this->prepareBreadcrumbs(__FUNCTION__, $pageTitle);
+
+        // Prepare breadcrumbs
+        $this->bc = array();
+        $this->bc[] = [
+            'link' => '',
+            'page' => 'Home',
+        ];
+        $this->bc[] = [
+            'link' => 'shipeu/spreadsheets',
+            'page' => 'Spreadsheets',
+        ];
+        $this->bc[] = [
+            'link' => 'shipeu/' . __FUNCTION__,
+            'page' => $pageTitle,
+        ];
 
         try {
             $crud = new grocery_CRUD();
@@ -1103,7 +1138,27 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('spreadsheet_row');
             $crud->set_subject($pageTitle);
+
             $crud->columns('row_number', 'column_a', 'column_b', 'column_c', 'column_d', 'column_e', 'column_f', 'column_g', 'column_h', 'column_i', 'column_j', 'column_k', 'column_l', 'column_m');
+
+            $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheetId);
+            $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id)->result();
+
+            foreach ($spreadsheetProfileColumns as $spreadsheetProfileColumn) {
+                if (empty($spreadsheetProfileColumn->service_id) && empty($spreadsheetProfileColumn->zone_id)) {
+                    $spreadsheetTypeColumnId = $spreadsheetProfileColumn->spreadsheet_type_column_id;
+                    $spreadsheetTypeColumn = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE id = " . $spreadsheetTypeColumnId)->row();
+                    $columnLabel = $spreadsheetTypeColumn->name;
+                } elseif (!empty($spreadsheetProfileColumn->service_id)) {
+                    $service = $this->db->query("SELECT * FROM service WHERE id = " . $spreadsheetProfileColumn->service_id)->row();
+                    $columnLabel = $service->name;
+                } elseif (!empty($spreadsheetProfileColumn->zone_id)) {
+                    $zone = $this->db->query("SELECT * FROM zone WHERE id = " . $spreadsheetProfileColumn->zone_id)->row();
+                    $columnLabel = $zone->name;
+                }
+
+                $crud->display_as('column_' . $spreadsheetProfileColumn->spreadsheet_column_name, $columnLabel);
+            }
 
             // Read only page
             $crud->unset_edit();
@@ -1111,18 +1166,6 @@ class Shipeu extends MY_Controller
             $crud->unset_add();
 
             $crud->unset_fields('spreadsheet_id');
-
-            if (isset($_GET)) {
-                if (isset($_GET['spreadsheetId'])) {
-                    // Store fee_id (provided via url) in session
-                    $spreadsheetId = $_GET['spreadsheetId'];
-                    $this->session->set_userdata(['spreadsheetId' => $spreadsheetId]);
-                }
-            }
-
-            // Set fee_id as hidden field (from session)
-            $userData = $this->session->get_userdata();
-            $spreadsheetId = $userData['spreadsheetId'];
             $crud->field_type('spreadsheetId', 'hidden', $spreadsheetId);
 
             // Filter by current fee_id
@@ -1136,6 +1179,105 @@ class Shipeu extends MY_Controller
             show_error($e->getMessage() . ' --- ' . $e->getTraceAsString());
         }
 
+    }
+
+    private function getSpreadsheetProfile($spreadsheetId)
+    {
+        if (is_array($spreadsheetId)) {
+            $post_array = $spreadsheetId;
+            $spreadsheetTypeId = $post_array['spreadsheet_type_id'];
+
+            $courierId = empty($post_array['courier_id']) ? 0 : $post_array['courier_id'];
+            $serviceId = empty($post_array['service_id']) ? 0 : $post_array['service_id'];
+            $sellerId = empty($post_array['seller_id']) ? 0 : $post_array['seller_id'];
+        } else {
+            $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
+            $spreadsheetTypeId = $spreadsheet->spreadsheet_type_id;
+
+            $courierId = empty($spreadsheet->courier_id) ? 0 : $spreadsheet->courier_id;
+            $serviceId = empty($spreadsheet->service_id) ? 0 : $spreadsheet->service_id;
+            $sellerId = empty($spreadsheet->seller_id) ? 0 : $spreadsheet->seller_id;
+        }
+
+        $spreadsheetProfile = $this->db->query("SELECT * FROM spreadsheet_profile WHERE spreadsheet_type_id = " . $spreadsheetTypeId .
+            " AND IFNULL(courier_id, 0) = " . $courierId .
+            " AND IFNULL(service_id, 0) = " . $serviceId .
+            " AND IFNULL(seller_id, 0) = " . $sellerId)->row();
+
+        return $spreadsheetProfile;
+    }
+
+    public function spreadsheetImport()
+    {
+        $this->load->library('session');
+
+        $this->sma->checkPermissions();
+
+        if (isset($_GET)) {
+            if (isset($_GET['spreadsheetId'])) {
+                // Store fee_id (provided via url) in session
+                $spreadsheetId = $_GET['spreadsheetId'];
+                $this->session->set_userdata(['spreadsheetId' => $spreadsheetId]);
+            }
+        }
+
+        // Set fee_id as hidden field (from session)
+        $userData = $this->session->get_userdata();
+        $spreadsheetId = $userData['spreadsheetId'];
+
+        $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
+        $spreadsheetType = $this->db->query("SELECT * FROM spreadsheet_type WHERE id = " . $spreadsheet->spreadsheet_type_id)->row();
+
+        if ($spreadsheetType->code = 'fee') {
+            $this->importSpreadsheetFees($spreadsheetId);
+        } else {
+            throw new Exception('Spreadsheet Type Import not supported for ' . $spreadsheetType->code);
+        }
+
+    }
+
+    private function importSpreadsheetFees($spreadsheetId)
+    {
+        // Delete previously imported data
+        $this->db->query("DELETE FROM fee WHERE id IN (SELECT fee_id FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
+        $this->db->query("DELETE FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
+
+        $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
+
+        $spreadsheetTypeColumnWeight = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE spreadsheet_type_id = " . $spreadsheet->spreadsheet_type_id . " AND code = 'weight'")->row();
+        $spreadsheetTypeColumnFee = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE spreadsheet_type_id = " . $spreadsheet->spreadsheet_type_id . " AND code = 'fee'")->row();
+
+        $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheetId);
+        $spreadsheetProfileColumnWeightSql = "SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumnWeight->id;
+        $spreadsheetProfileColumnWeight = $this->db->query($spreadsheetProfileColumnWeightSql)->row();
+        $weightColumn = $spreadsheetProfileColumnWeight->spreadsheet_column_name;
+        $weightColumnName = 'column_'.$weightColumn;
+
+        $feeTypeShippingFee =  $this->db->query("SELECT * FROM fee_type WHERE name = 'Shipping Fee'")->row();
+
+        $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumnFee->id . " ORDER BY zone_id")->result();
+        foreach ($spreadsheetProfileColumns as $spreadsheetProfileColumn) {
+            $zoneId = $spreadsheetProfileColumn->zone_id;
+            $insertFee = 'INSERT INTO fee (fee_type_id, courier_cost, service_id, zone_id) VALUES (' . $feeTypeShippingFee->id . ', 1, ' . $spreadsheet->service_id . ', ' . $zoneId . ')';
+            $this->db->query($insertFee);
+            $feeId = $this->db->insert_id();
+            $zoneColumn = $spreadsheetProfileColumn->spreadsheet_column_name;
+            $zoneColumnName = 'column_'.$zoneColumn;
+
+            $spreadsheetRows = $this->db->query("SELECT * FROM spreadsheet_row WHERE spreadsheet_id = " . $spreadsheetId . " ORDER BY row_number")->result();
+            $minWeight = 0;
+            foreach ($spreadsheetRows as $spreadsheetRow) {
+                $maxWeight = $spreadsheetRow->$weightColumnName;
+                $fee = $spreadsheetRow->$zoneColumnName;
+                $insertFeeRange = "INSERT INTO fee_range (fee_id, units_from, units_to, fee, spreadsheet_id) VALUES ($feeId, '$minWeight', '$maxWeight', '$fee', $spreadsheetId)";
+                $this->db->query($insertFeeRange);
+                $minWeight = $maxWeight;
+            }
+        }
+
+        $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
+
+        redirect('shipeu/deliveryCosts');
     }
 
     public function shipments()

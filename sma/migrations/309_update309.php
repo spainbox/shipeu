@@ -431,7 +431,7 @@ class Migration_Update309 extends CI_Migration
                 zone.name as zone,
                 units_from as weight_from,
                 units_to as weight_to,
-                fee.fee as price
+                fee_range.fee as price
             FROM fee_range
             INNER JOIN fee ON fee_range.fee_id = fee.id
             INNER JOIN zone ON fee.zone_id = zone.id
