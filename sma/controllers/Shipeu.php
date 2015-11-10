@@ -1062,8 +1062,8 @@ class Shipeu extends MY_Controller
             $columnName = 'a';
             foreach($data as $index => $value) // assumes there are as many columns as their are title columns
             {
-                // We will store numeric data using comma as decimal separator
-                $standardDecimalSeparator = ',';
+                // We will store numeric data using dot as decimal separator
+                $standardDecimalSeparator = '.';
                 switch ($spreadsheetProfile->decimals_delimiter) {
                     case 'comma':
                         $value = str_replace(',', $standardDecimalSeparator, $value);
