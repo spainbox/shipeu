@@ -994,7 +994,7 @@ class Shipeu extends MY_Controller
 
         // Validate if there are a profile defined for this spreadsheet (with this configuration)
         $spreadsheetProfile = $this->getSpreadsheetProfile($post_array);
-        if (empty(($spreadsheetProfile))) {
+        if (empty($spreadsheetProfile)) {
             return false;
         }
 
