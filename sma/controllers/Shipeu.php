@@ -385,7 +385,7 @@ class Shipeu extends MY_Controller
             $crud->set_table('vwDeliveryCosts');
 
             $crud->set_subject($pageTitle);
-            $crud->columns('courier', 'service', 'zone', 'weight_from', 'weight_to', 'price');
+            $crud->columns('courier', 'service', 'zone', 'weight_from', 'weight_to', 'price', 'spreadsheet');
 
             // Data is read-only (imported/updated via spreadsheets)
             $crud->unset_add();
