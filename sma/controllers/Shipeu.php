@@ -847,6 +847,23 @@ class Shipeu extends MY_Controller
                 'l' => 'Column L',
                 'm' => 'Column M',
                 'n' => 'Column N',
+                'o' => 'Column O',
+                'p' => 'Column P',
+                'q' => 'Column Q',
+                'r' => 'Column R',
+                's' => 'Column S',
+                't' => 'Column T',
+                'u' => 'Column U',
+                'v' => 'Column V',
+                'w' => 'Column W',
+                'x' => 'Column X',
+                'y' => 'Column Y',
+                'z' => 'Column Z',
+                'aa' => 'Column AA',
+                'ab' => 'Column AB',
+                'ac' => 'Column AC',
+                'ad' => 'Column AD',
+                'ae' => 'Column AE',
             ];
 
             foreach ($fields as $fieldName => $fieldLabel) {
