@@ -186,7 +186,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field('id');
         $this->dbforge->add_field('spreadsheet_profile_id int NOT NULL');
         $this->dbforge->add_field("spreadsheet_type_column_id int NOT NULL");
-        $this->dbforge->add_field("spreadsheet_column_name char(1) NULL");
+        $this->dbforge->add_field("spreadsheet_column_name char(2) NULL");
         $this->dbforge->add_field("service_id int NULL");
         $this->dbforge->add_field("zone_id int NULL");
         $this->dbforge->create_table('spreadsheet_profile_column');

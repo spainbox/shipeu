@@ -745,7 +745,7 @@ class Shipeu extends MY_Controller
                     $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
                 }
 
-                $createTable .= $fieldName . " char(1) NOT NULL, ";
+                $createTable .= $fieldName . " char(2) NOT NULL, ";
                 $insertRecord .= ", '" . $fieldValue . "'";
             } elseif ($spreadsheetTypeColumn->per_zone == 1) {
                 $zones = $this->db->query("SELECT * FROM zone WHERE service_id = " . $spreadsheetProfile->service_id . " ORDER BY name")->result();;
@@ -760,7 +760,7 @@ class Shipeu extends MY_Controller
                         $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
                     }
 
-                    $createTable .= $fieldName . " char(1) NOT NULL, ";
+                    $createTable .= $fieldName . " char(2) NOT NULL, ";
                     $insertRecord .= ", '" . $fieldValue . "'";
                 }
             } else {
@@ -776,7 +776,7 @@ class Shipeu extends MY_Controller
                         $fieldValue = $spreadsheetProfileColumn->spreadsheet_column_name;
                     }
 
-                    $createTable .= $fieldName . " char(1) NOT NULL, ";
+                    $createTable .= $fieldName . " char(2) NOT NULL, ";
                     $insertRecord .= ", '" . $fieldValue . "'";
                 }
             }
@@ -970,7 +970,7 @@ class Shipeu extends MY_Controller
             $crud->display_as('seller_id','Seller');
 
             $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
-            $crud->set_rules('year','Spreadsheet Year',['integer', 'required']);
+            $crud->set_rules('year','Spreadsheet Year',['integer']);  // Year is not required due Amazon and purchase spreadsheets
 
             $output = $crud->render();
 
@@ -1100,7 +1100,19 @@ class Shipeu extends MY_Controller
                 }
 
                 $fields['column_'.$columnName] = $value;
-                $columnName = chr(ord($columnName)+1);
+                if (strlen($columnName) == 1) {
+                    if ($columnName == 'z') {
+                        $columnName = 'aa';
+                    } else {
+                        $columnName = chr(ord($columnName)+1);
+                    }
+                } else {
+                    // Support for columns aa, ab, ac ...
+                    $lastChar = substr($columnName, 1, 1);
+                    $nextLastChar = chr(ord($lastChar)+1);
+                    $columnName = 'a' . $nextLastChar;
+                }
+
             }
 
             // Insert row
@@ -1156,7 +1168,39 @@ class Shipeu extends MY_Controller
             $crud->set_table('spreadsheet_row');
             $crud->set_subject($pageTitle);
 
-            $crud->columns('row_number', 'column_a', 'column_b', 'column_c', 'column_d', 'column_e', 'column_f', 'column_g', 'column_h', 'column_i', 'column_j', 'column_k', 'column_l', 'column_m');
+            $crud->columns('row_number',
+                'column_a',
+                'column_b',
+                'column_c',
+                'column_d',
+                'column_e',
+                'column_f',
+                'column_g',
+                'column_h',
+                'column_i',
+                'column_j',
+                'column_k',
+                'column_l',
+                'column_m',
+                'column_n',
+                'column_o',
+                'column_p',
+                'column_q',
+                'column_r',
+                'column_s',
+                'column_t',
+                'column_u',
+                'column_v',
+                'column_w',
+                'column_x',
+                'column_y',
+                'column_z',
+                'column_aa',
+                'column_ab',
+                'column_ac',
+                'column_ad',
+                'column_ae'
+                );
 
             $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheetId);
             $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id)->result();
@@ -1245,12 +1289,39 @@ class Shipeu extends MY_Controller
         $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
         $spreadsheetType = $this->db->query("SELECT * FROM spreadsheet_type WHERE id = " . $spreadsheet->spreadsheet_type_id)->row();
 
-        if ($spreadsheetType->code = 'fee') {
-            $this->importSpreadsheetFees($spreadsheetId);
+        switch ($spreadsheetType->code) {
+            case 'fee':
+                $this->importSpreadsheetFees($spreadsheetId);
+                break;
+            case 'zone':
+                $this->importSpreadsheetZones($spreadsheetId);
+                break;
+            case 'amazon-sells':
+                $this->importSpreadsheetAmazonSells($spreadsheetId);
+        }
+    }
+
+    private function getSpreadsheetTypeColumn($spreadsheet, $columnTypeName)
+    {
+        $spreadsheetTypeColumn = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE spreadsheet_type_id = " . $spreadsheet->spreadsheet_type_id . " AND code = '$columnTypeName'")->row();
+        return $spreadsheetTypeColumn;
+    }
+
+    private function getSpreadsheetColumnField($spreadsheet, $columnTypeName)
+    {
+        $spreadsheetTypeColumn = $this->getSpreadsheetTypeColumn($spreadsheet, $columnTypeName);
+        $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheet->id);
+        $spreadsheetProfileColumnSql = "SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumn->id;
+        $spreadsheetProfileColumn = $this->db->query($spreadsheetProfileColumnSql)->row();
+        $columnName = $spreadsheetProfileColumn->spreadsheet_column_name;
+
+        if (empty($columnName)) {
+            $columnField = '';
         } else {
-            throw new Exception('Spreadsheet Type Import not supported for ' . $spreadsheetType->code);
+            $columnField = 'column_'.$columnName;
         }
 
+        return $columnField;
     }
 
     private function importSpreadsheetFees($spreadsheetId)
@@ -1259,33 +1330,32 @@ class Shipeu extends MY_Controller
         $this->db->query("DELETE FROM fee WHERE id IN (SELECT fee_id FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
         $this->db->query("DELETE FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
 
+        // Load spreadsheet and their profile
         $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
+        $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheet->id);
 
-        $spreadsheetTypeColumnWeight = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE spreadsheet_type_id = " . $spreadsheet->spreadsheet_type_id . " AND code = 'weight'")->row();
-        $spreadsheetTypeColumnFee = $this->db->query("SELECT * FROM spreadsheet_type_column WHERE spreadsheet_type_id = " . $spreadsheet->spreadsheet_type_id . " AND code = 'fee'")->row();
-
-        $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheetId);
-        $spreadsheetProfileColumnWeightSql = "SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumnWeight->id;
-        $spreadsheetProfileColumnWeight = $this->db->query($spreadsheetProfileColumnWeightSql)->row();
-        $weightColumn = $spreadsheetProfileColumnWeight->spreadsheet_column_name;
-        $weightColumnName = 'column_'.$weightColumn;
+        // Load column Types
+        $weightColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'weight');
+        $feeTypeColumn = $this->getSpreadsheetTypeColumn($spreadsheet, 'fee');
 
         $feeTypeShippingFee =  $this->db->query("SELECT * FROM fee_type WHERE name = 'Shipping Fee'")->row();
 
-        $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id . " AND spreadsheet_type_column_id = " . $spreadsheetTypeColumnFee->id . " ORDER BY zone_id")->result();
+        $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id .
+            " AND spreadsheet_type_column_id = " . $feeTypeColumn->id . " ORDER BY zone_id")->result();
+
         foreach ($spreadsheetProfileColumns as $spreadsheetProfileColumn) {
             $zoneId = $spreadsheetProfileColumn->zone_id;
             $insertFee = 'INSERT INTO fee (fee_type_id, courier_cost, service_id, zone_id) VALUES (' . $feeTypeShippingFee->id . ', 1, ' . $spreadsheet->service_id . ', ' . $zoneId . ')';
             $this->db->query($insertFee);
             $feeId = $this->db->insert_id();
-            $zoneColumn = $spreadsheetProfileColumn->spreadsheet_column_name;
-            $zoneColumnName = 'column_'.$zoneColumn;
+            $zoneColumnName = $spreadsheetProfileColumn->spreadsheet_column_name;
+            $zoneColumnField = 'column_'.$zoneColumnName;
 
             $spreadsheetRows = $this->db->query("SELECT * FROM spreadsheet_row WHERE spreadsheet_id = " . $spreadsheetId . " ORDER BY row_number")->result();
             $minWeight = 0;
             foreach ($spreadsheetRows as $spreadsheetRow) {
-                $maxWeight = $spreadsheetRow->$weightColumnName;
-                $fee = $spreadsheetRow->$zoneColumnName;
+                $maxWeight = $spreadsheetRow->$weightColumnField;
+                $fee = $spreadsheetRow->$zoneColumnField;
                 $insertFeeRange = "INSERT INTO fee_range (fee_id, units_from, units_to, fee, spreadsheet_id) VALUES ($feeId, '$minWeight', '$maxWeight', '$fee', $spreadsheetId)";
                 $this->db->query($insertFeeRange);
                 $minWeight = $maxWeight;
@@ -1294,6 +1364,105 @@ class Shipeu extends MY_Controller
 
         $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
 
+        redirect('shipeu/deliveryCosts');
+    }
+
+    private function importSpreadsheetZones($spreadsheetId)
+    {
+        // Load spreadsheet
+        $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
+        if ($spreadsheet->imported == 1) {
+            $this->session->set_flashdata('error', 'This spreadsheet was already imported');
+            redirect('shipeu/spreadsheets');
+        }
+
+        // Load column types
+        $zoneColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'zone');
+        $countryColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'country');
+        $postcodesColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'postcodes');
+        $statesColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'state');
+        $cityColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'city');
+
+        $spreadsheetRows = $this->db->query("SELECT * FROM spreadsheet_row WHERE spreadsheet_id = " . $spreadsheetId . " ORDER BY row_number")->result();
+        foreach ($spreadsheetRows as $spreadsheetRow) {
+            // Load values
+            $zoneCode = empty($zoneColumnField) ? '' : $spreadsheetRow->$zoneColumnField;
+            $countryCode = empty($countryColumnField) ? '' : $spreadsheetRow->$countryColumnField;
+            $postcodes = empty($postcodesColumnField) ? '' : $spreadsheetRow->$postcodesColumnField;
+            $stateName = empty($statesColumnField) ? '' : $spreadsheetRow->$statesColumnField;
+            $cityName = empty($cityColumnField) ? '' : $spreadsheetRow->$cityColumnField;
+
+            // Check if zone exists (otherwise create it first)
+            $zone = $this->db->query("SELECT * FROM zone WHERE service_id = " . $spreadsheet->service_id . " AND code = '$zoneCode'")->row();
+            if (empty($zone)) {
+                $serviceId = $spreadsheet->service_id;
+                $insertZone = "INSERT INTO zone (code, name, service_id) VALUES ('$zoneCode', '$zoneCode', $serviceId)";
+                $this->db->query($insertZone);
+                $zone = $this->db->query("SELECT * FROM zone WHERE service_id = " . $spreadsheet->service_id . " AND code = '$zoneCode'")->row();
+            }
+
+            $country = $this->db->query("SELECT * FROM country WHERE code = '$countryCode'")->row();
+            $countryId = $country->id;
+            if (empty($state)) {
+                $stateId = "NULL";
+            } else {
+                $state = $this->db->query("SELECT * FROM state WHERE name = '$stateName' AND country_id = $countryId")->row();
+                if (empty($state)) {
+                    $this->session->set_flashdata('error', "No state with name '$stateName' was found on country '$countryName'");
+                    redirect('shipeu/spreadsheets');
+                } else {
+                    $stateId = $state->id;
+                }
+            }
+
+            if (empty($postcodes)) {
+                $postcodeFrom = '';
+                $postcodeTo = '';
+            } else {
+                $separator = strpos('-', $postcodes);
+                if ($separator == FALSE) {
+                    // Wildcard format: 12XXXX
+                    $postcodeFrom = str_replace('X', '0', $postcodes);
+                    $postcodeTo = str_replace('X', '9', $postcodes);
+                } else {
+                    // Range format: 12000 - 12999
+                    $postcodeFrom = substr($postcodes, 0, $separator -1);
+                    $postcodeTo = substr($postcodes, $separator);
+                }
+            }
+
+            $zoneId = $zone->id;
+            $insertZoneItem = "INSERT INTO zone_item (zone_id, state_id, country_id, postcode_from, postcode_to) VALUES ($zoneId, $stateId, $countryId, '$postcodeFrom', '$postcodeTo')";
+            $this->db->query($insertZoneItem);
+        }
+
+        // Mark spreadsheet as imported
+        $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
+
+        // Redirect
+        redirect('shipeu/deliveryCosts');
+    }
+
+    private function importSpreadsheetAmazonSells($spreadsheetId)
+    {
+        // Load spreadsheet
+        $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
+        if ($spreadsheet->imported == 1) {
+            throw new Exception("This spreadsheet was already imported");
+        }
+
+        // Load column types
+        $zoneColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'zone');
+        $countryColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'country');
+        $postcodesColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'postcodes');
+        $statesColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'state');
+        $cityColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'city');
+
+
+        // Mark spreadsheet as imported
+        $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
+
+        // Redirect
         redirect('shipeu/deliveryCosts');
     }
 

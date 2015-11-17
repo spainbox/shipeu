@@ -242,7 +242,8 @@ class Migration_Update312 extends CI_Migration
 
         $this->dbforge->add_column('spreadsheet_row', ["column_aa varchar(100) NULL", "column_ab varchar(100) NULL", "column_ac varchar(100) NULL", "column_ad varchar(100) NULL", "column_ae varchar(100) NULL"]);
 
-        //  ALTER TABLE spreadsheet_column MODIFY COLUMN column_name CHAR(2) NULL;
+        // ALTER TABLE spreadsheet_column MODIFY COLUMN column_name CHAR(2) NULL;
+        // ALTER TABLE spreadsheet_profile_column MODIFY COLUMN spreadsheet_column_name CHAR(2) NULL;
     }
 
     public function down()
