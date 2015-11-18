@@ -288,6 +288,7 @@ class Migration_Update309 extends CI_Migration
         $this->dbforge->add_field("country_id int NULL"); // Any country can be added to a zone
         $this->dbforge->add_field("postcode_from varchar(20) NULL"); // Any country can be added to a zone
         $this->dbforge->add_field("postcode_to varchar(20) NULL"); // Any country can be added to a zone
+        $this->dbforge->add_field("spreadsheet_id int NULL"); // Spreadsheet which have loaded this record (optional, manual edition also allowed)
         $this->dbforge->create_table('zone_item');
 
         // ==========

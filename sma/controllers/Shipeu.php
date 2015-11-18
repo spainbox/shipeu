@@ -43,7 +43,7 @@ class Shipeu extends MY_Controller
             $crud->set_subject($pageTitle);
             $crud->columns('code', 'name');
             $crud->required_fields('code', 'name');
-            $crud->unique_fields('code','name');
+            $crud->unique_fields('code', 'name');
 
             $output = $crud->render();
 
@@ -69,10 +69,10 @@ class Shipeu extends MY_Controller
             $crud->set_subject($pageTitle);
             $crud->required_fields('code', 'name', 'continent_id');
             $crud->columns('code', 'name', 'continent_id');
-            $crud->unique_fields('code','name');
+            $crud->unique_fields('code', 'name');
 
-            $crud->set_relation('continent_id','continent','{name}', null, 'name ASC');
-            $crud->display_as('continent_id','Continent');
+            $crud->set_relation('continent_id', 'continent', '{name}', null, 'name ASC');
+            $crud->display_as('continent_id', 'Continent');
 
             $output = $crud->render();
 
@@ -98,10 +98,10 @@ class Shipeu extends MY_Controller
             $crud->set_subject($pageTitle);
             $crud->required_fields('code', 'name', 'country_id');
             $crud->columns('code', 'name', 'country_id');
-            $crud->unique_fields('code','name');
+            $crud->unique_fields('code', 'name');
 
-            $crud->set_relation('country_id','country','{code} - {name}', null, 'code ASC');
-            $crud->display_as('country_id','Country');
+            $crud->set_relation('country_id', 'country', '{code} - {name}', null, 'code ASC');
+            $crud->display_as('country_id', 'Country');
 
             $output = $crud->render();
 
@@ -128,7 +128,7 @@ class Shipeu extends MY_Controller
             $crud->required_fields('name', 'state_id');
             $crud->columns('name', 'state_id');
 
-            $crud->set_relation('state_id','vw_state', '{countryName} - {name}', null, 'countryName, name ASC');
+            $crud->set_relation('state_id', 'vw_state', '{countryName} - {name}', null, 'countryName, name ASC');
             $crud->display_as('state_id', 'State');
 
             $output = $crud->render();
@@ -155,7 +155,7 @@ class Shipeu extends MY_Controller
             $crud->set_subject($pageTitle);
             $crud->required_fields('code', 'name');
             $crud->columns('code', 'name', 'website');
-            $crud->unique_fields('code','name');
+            $crud->unique_fields('code', 'name');
 
             $output = $crud->render();
 
@@ -181,16 +181,16 @@ class Shipeu extends MY_Controller
             $crud->set_subject($pageTitle);
             $crud->required_fields('code', 'name', 'courier_id');
             $crud->columns('courier_id', 'code', 'name', 'delivery_days_min', 'delivery_days_max', 'description');
-            $crud->unique_fields('code','name');
+            $crud->unique_fields('code', 'name');
 
-            $crud->set_rules('delivery_days_min','Delivery Days Min',['integer', 'required']);
-            $crud->set_rules('delivery_days_max','Delivery Days Max',['integer', 'required']);
+            $crud->set_rules('delivery_days_min', 'Delivery Days Min', ['integer', 'required']);
+            $crud->set_rules('delivery_days_max', 'Delivery Days Max', ['integer', 'required']);
 
             // On version 1, fee_method is not used, all spreadsheets use total-price method (not listed here)
             $crud->fields('code', 'name', 'courier_id', 'delivery_days_min', 'delivery_days_max', 'description');
 
-            $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
-            $crud->display_as('courier_id','Courier');
+            $crud->set_relation('courier_id', 'courier', '{name}', null, 'name ASC');
+            $crud->display_as('courier_id', 'Courier');
 
             $output = $crud->render();
 
@@ -221,10 +221,10 @@ class Shipeu extends MY_Controller
             $crud->field_type('biller_company_id', 'hidden');
             $crud->field_type('supplier_company_id', 'hidden');
 
-            $crud->set_relation('country_id','country','{code} - {name}', null, 'code ASC');
-            $crud->display_as('country_id','Country');
+            $crud->set_relation('country_id', 'country', '{code} - {name}', null, 'code ASC');
+            $crud->display_as('country_id', 'Country');
 
-            $crud->callback_after_insert(array($this,'seller_after_insert'));
+            $crud->callback_after_insert(array($this, 'seller_after_insert'));
 
             $output = $crud->render();
 
@@ -283,22 +283,22 @@ class Shipeu extends MY_Controller
             $crud->set_theme('datatables');
             $crud->set_table('service_selection');
             $crud->set_subject($pageTitle);
-            $crud->required_fields('seller_id', 'service_selection_method_id','service_id');
+            $crud->required_fields('seller_id', 'service_selection_method_id', 'service_id');
             $crud->columns('seller_id', 'priority', 'service_selection_method_id', 'country_id', 'range_start', 'range_end', 'service_id');
 
-            $crud->set_rules('priority','Priority Number', ['integer', 'required']);
+            $crud->set_rules('priority', 'Priority Number', ['integer', 'required']);
 
-            $crud->set_relation('seller_id','seller','name', null, 'name ASC');
-            $crud->display_as('seller_id','Seller');
+            $crud->set_relation('seller_id', 'seller', 'name', null, 'name ASC');
+            $crud->display_as('seller_id', 'Seller');
 
-            $crud->set_relation('service_selection_method_id','service_selection_method','{sequence} - {name}', null, 'sequence');
-            $crud->display_as('service_selection_method_id','Selection Method');
+            $crud->set_relation('service_selection_method_id', 'service_selection_method', '{sequence} - {name}', null, 'sequence');
+            $crud->display_as('service_selection_method_id', 'Selection Method');
 
-            $crud->set_relation('country_id','country','{code} - {name}', null, 'code ASC');
-            $crud->display_as('country_id','Country');
+            $crud->set_relation('country_id', 'country', '{code} - {name}', null, 'code ASC');
+            $crud->display_as('country_id', 'Country');
 
-            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
-            $crud->display_as('service_id','Service');
+            $crud->set_relation('service_id', 'service', '{name}', null, 'name ASC');
+            $crud->display_as('service_id', 'Service');
 
             $output = $crud->render();
 
@@ -325,8 +325,8 @@ class Shipeu extends MY_Controller
             $crud->required_fields('code', 'name', 'service_id');
             $crud->columns('code', 'name', 'service_id');
 
-            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
-            $crud->display_as('service_id','Service');
+            $crud->set_relation('service_id', 'service', '{name}', null, 'name ASC');
+            $crud->display_as('service_id', 'Service');
 
             $output = $crud->render();
 
@@ -351,16 +351,19 @@ class Shipeu extends MY_Controller
             $crud->set_table('zone_item');
             $crud->set_subject($pageTitle);
             $crud->required_fields('zone_id');
-            $crud->columns('zone_id', 'country_id', 'state_id', 'postcode_from', 'postcode_to');
+            $crud->columns('zone_id', 'country_id', 'state_id', 'postcode_from', 'postcode_to', 'spreadshet_id');
 
-            $crud->set_relation('zone_id','vw_zone','{serviceCode} | {name}', null, 'serviceCode ASC, name ASC');
-            $crud->display_as('zone_id','Zone');
+            $crud->set_relation('zone_id', 'vw_zone', '{serviceCode} | {name}', null, 'serviceCode ASC, name ASC');
+            $crud->display_as('zone_id', 'Zone');
 
-            $crud->set_relation('country_id','country','{name}', null, 'code ASC');
-            $crud->display_as('country_id','Country');
+            $crud->set_relation('country_id', 'country', '{name}', null, 'code ASC');
+            $crud->display_as('country_id', 'Country');
 
-            $crud->set_relation('state_id','state','{code} - {name}', null, 'code ASC');
-            $crud->display_as('state_id','State');
+            $crud->set_relation('state_id', 'state', '{code} - {name}', null, 'code ASC');
+            $crud->display_as('state_id', 'State');
+
+            $crud->set_relation('spreadsheet_id', 'spreadsheet', 'name', null, 'name ASC');
+            $crud->display_as('spreadsheet_id', 'Spreadsheet');
 
             $output = $crud->render();
 
@@ -416,19 +419,19 @@ class Shipeu extends MY_Controller
             $crud->set_table('package');
             $crud->set_subject($pageTitle);
             $crud->columns('package_type_id', 'code_1', 'code_2', 'cost_price', 'inner_width_cm', 'inner_height_cm', 'inner_large_cm', 'outer_width_cm', 'outer_height_cm', 'outer_large_cm');
-            $crud->unique_fields('code_1','code_2');
+            $crud->unique_fields('code_1', 'code_2');
 
-            $crud->set_relation('package_type_id','package_type','{name}');
-            $crud->display_as('package_type_id','Type');
+            $crud->set_relation('package_type_id', 'package_type', '{name}');
+            $crud->display_as('package_type_id', 'Type');
 
-            $crud->set_rules('code_1','Code 1',['required']);
-            $crud->set_rules('cost_price','Cost Price',['decimal', 'required']);
-            $crud->set_rules('inner_width_cm','Inner Width Cm',['integer', 'required']);
-            $crud->set_rules('inner_height_cm','Inner Height Cm',['integer', 'required']);
-            $crud->set_rules('inner_large_cm','Inner Large Cm',['integer', 'required']);
-            $crud->set_rules('outer_width_cm','Inner Width Cm',['integer', 'required']);
-            $crud->set_rules('outer_height_cm','Inner Height Cm',['integer', 'required']);
-            $crud->set_rules('outer_large_cm','Inner Large Cm',['integer', 'required']);
+            $crud->set_rules('code_1', 'Code 1', ['required']);
+            $crud->set_rules('cost_price', 'Cost Price', ['decimal', 'required']);
+            $crud->set_rules('inner_width_cm', 'Inner Width Cm', ['integer', 'required']);
+            $crud->set_rules('inner_height_cm', 'Inner Height Cm', ['integer', 'required']);
+            $crud->set_rules('inner_large_cm', 'Inner Large Cm', ['integer', 'required']);
+            $crud->set_rules('outer_width_cm', 'Inner Width Cm', ['integer', 'required']);
+            $crud->set_rules('outer_height_cm', 'Inner Height Cm', ['integer', 'required']);
+            $crud->set_rules('outer_large_cm', 'Inner Large Cm', ['integer', 'required']);
 
             $output = $crud->render();
 
@@ -466,10 +469,10 @@ class Shipeu extends MY_Controller
             $crud->set_relation('fee_granularity_id', 'fee_granularity', '{name} - {description}', null, 'sequence ASC');
             $crud->display_as('fee_granularity_id', 'Fee Granularity');
 
-            $crud->field_type('fee_ranges', 'dropdown', [ '1' => 'No - Unique Price', '2' => 'Yes - Prices by Ranges']);
+            $crud->field_type('fee_ranges', 'dropdown', ['1' => 'No - Unique Price', '2' => 'Yes - Prices by Ranges']);
             $crud->display_as('fee_ranges', 'Use Fee Ranges');
 
-            $crud->field_type('apply', 'dropdown', [ '1' => 'Automatically', '2' => 'Manually - Enabled by default', '3' => 'Manually - Disabled by default', '4' => 'Never (inactive)']);
+            $crud->field_type('apply', 'dropdown', ['1' => 'Automatically', '2' => 'Manually - Enabled by default', '3' => 'Manually - Disabled by default', '4' => 'Never (inactive)']);
             $crud->display_as('apply', 'Apply');
 
             $output = $crud->render();
@@ -496,7 +499,7 @@ class Shipeu extends MY_Controller
             $crud->set_subject($pageTitle);
             $crud->required_fields('fee_type_id', 'courier_cost', 'minimal_fee');
             $crud->columns('fee_type_id', 'courier_cost', 'seller_id', 'courier_id', 'service_id', 'zone_id', 'country_id', 'minimal_fee', 'custom_field1_value', 'custom_field2_value');
-            $crud->add_action('Ranges', '', '','ui-icon-info', array($this,'redirectFeeRanges'));
+            $crud->add_action('Ranges', '', '', 'ui-icon-info', array($this, 'redirectFeeRanges'));
 
             $unsetColumns = array();
 
@@ -513,7 +516,7 @@ class Shipeu extends MY_Controller
             $crud->set_relation('fee_type_id', 'fee_type', '{name} - {description}', null, 'name ASC');
             $crud->display_as('fee_type_id', 'Fee Type');
 
-            $crud->field_type('courier_cost', 'dropdown', [ '1' => 'No (our fee)', '2' => 'Yes (courier fee)']);
+            $crud->field_type('courier_cost', 'dropdown', ['1' => 'No (our fee)', '2' => 'Yes (courier fee)']);
             $crud->display_as('courier_cost', 'Is Courier Cost');
 
             // Granularity Dropdowns (1 is General)
@@ -587,9 +590,9 @@ class Shipeu extends MY_Controller
         }
     }
 
-    function redirectFeeRanges($primary_key , $row)
+    function redirectFeeRanges($primary_key, $row)
     {
-        return site_url('shipeu/feeRanges').'?fee_id=' . $primary_key;
+        return site_url('shipeu/feeRanges') . '?fee_id=' . $primary_key;
     }
 
     public function feeRanges()
@@ -626,9 +629,9 @@ class Shipeu extends MY_Controller
             // Filter by current fee_id
             $crud->where('fee_id', $feeId);
 
-            $crud->set_rules('units_from','Units From',['decimal', 'required']);
-            $crud->set_rules('units_to','Units To',['decimal', 'required']);
-            $crud->set_rules('fee','Fee',['decimal', 'required']);
+            $crud->set_rules('units_from', 'Units From', ['decimal', 'required']);
+            $crud->set_rules('units_to', 'Units To', ['decimal', 'required']);
+            $crud->set_rules('fee', 'Fee', ['decimal', 'required']);
 
             $output = $crud->render();
 
@@ -656,21 +659,21 @@ class Shipeu extends MY_Controller
             $crud->columns('spreadsheet_type_id', 'courier_id', 'service_id', 'seller_id', 'ignore_first_row', 'fields_delimiter', 'decimals_delimiter');
 
             // Customize actions
-            $crud->add_action('Columns', '', '','ui-icon-info', array($this,'redirectSpreadsheetProfileColumns'));
+            $crud->add_action('Columns', '', '', 'ui-icon-info', array($this, 'redirectSpreadsheetProfileColumns'));
 
-            $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
-            $crud->display_as('spreadsheet_type_id','Type');
+            $crud->set_relation('spreadsheet_type_id', 'spreadsheet_type', '{name}');
+            $crud->display_as('spreadsheet_type_id', 'Type');
 
-            $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
-            $crud->display_as('courier_id','Courier');
+            $crud->set_relation('courier_id', 'courier', '{name}', null, 'name ASC');
+            $crud->display_as('courier_id', 'Courier');
 
-            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
-            $crud->display_as('service_id','Service');
+            $crud->set_relation('service_id', 'service', '{name}', null, 'name ASC');
+            $crud->display_as('service_id', 'Service');
 
-            $crud->set_relation('seller_id','seller','{name}', null, 'name ASC');
-            $crud->display_as('seller_id','Seller');
+            $crud->set_relation('seller_id', 'seller', '{name}', null, 'name ASC');
+            $crud->display_as('seller_id', 'Seller');
 
-            $crud->field_type('ignore_first_row', 'dropdown', [0 => 'No', 1=>'Yes']);
+            $crud->field_type('ignore_first_row', 'dropdown', [0 => 'No', 1 => 'Yes']);
             $crud->display_as('ignore_first_row', 'Ignore First Row');
 
             $characters = [
@@ -824,7 +827,7 @@ class Shipeu extends MY_Controller
             $crud->unset_add();
             $crud->unset_delete();
 
-            $crud->callback_after_update(array($this,'spreadsheet_profile_column_after_update'));
+            $crud->callback_after_update(array($this, 'spreadsheet_profile_column_after_update'));
 
             $crud->unset_fields('spreadsheet_profile_id');
             $crud->field_type('spreadsheetProfileId', 'hidden', $spreadsheetProfileId);
@@ -915,9 +918,9 @@ class Shipeu extends MY_Controller
     }
 
     // Redirect to see spreadsheet profile columns
-    function redirectSpreadsheetProfileColumns($primary_key , $row)
+    function redirectSpreadsheetProfileColumns($primary_key, $row)
     {
-        return site_url('shipeu/spreadsheetProfileColumns?spreadsheetProfileId='.$primary_key);
+        return site_url('shipeu/spreadsheetProfileColumns?spreadsheetProfileId=' . $primary_key);
     }
 
     public function spreadsheets()
@@ -937,40 +940,40 @@ class Shipeu extends MY_Controller
 
             // Customize actions
             $crud->unset_edit();
-            $crud->add_action('Rows', '', '','ui-icon-info', array($this,'redirectSpreadsheetRows'));
-            $crud->add_action('Import', '', '','ui-icon-info', array($this,'redirectSpreadsheetImport'));
+            $crud->add_action('Rows', '', '', 'ui-icon-info', array($this, 'redirectSpreadsheetRows'));
+            $crud->add_action('Import', '', '', 'ui-icon-info', array($this, 'redirectSpreadsheetImport'));
 
-            $crud->change_field_type('name','invisible');
-            $crud->change_field_type('updated_date','invisible');
+            $crud->change_field_type('name', 'invisible');
+            $crud->change_field_type('updated_date', 'invisible');
 
-            $crud->callback_before_insert(array($this,'spreadsheet_before_insert'));
-            $crud->callback_after_insert(array($this,'spreadsheet_after_insert'));
+            $crud->callback_before_insert(array($this, 'spreadsheet_before_insert'));
+            $crud->callback_after_insert(array($this, 'spreadsheet_after_insert'));
 
-            $crud->set_relation('spreadsheet_type_id','spreadsheet_type','{name}');
-            $crud->display_as('spreadsheet_type_id','Type');
+            $crud->set_relation('spreadsheet_type_id', 'spreadsheet_type', '{name}');
+            $crud->display_as('spreadsheet_type_id', 'Type');
 
             $crud->unset_fields('name', 'imported', 'last_column', 'updated_date');
 
             /// Upload field
-            $crud->set_field_upload('path','assets/uploads/csv', 'csv');
-            $crud->display_as('path','Upload csv');
-            $crud->set_rules('path','Upload csv',['required']);
-            $crud->callback_after_upload(array($this,'spreadsheet_after_upload'));
+            $crud->set_field_upload('path', 'assets/uploads/csv', 'csv');
+            $crud->display_as('path', 'Upload csv');
+            $crud->set_rules('path', 'Upload csv', ['required']);
+            $crud->callback_after_upload(array($this, 'spreadsheet_after_upload'));
 
-            $crud->field_type('imported', 'dropdown', [0 => 'No', 1=>'Yes']);
+            $crud->field_type('imported', 'dropdown', [0 => 'No', 1 => 'Yes']);
             $crud->display_as('imported', 'Imported');
 
-            $crud->set_relation('courier_id','courier','{name}', null, 'name ASC');
-            $crud->display_as('courier_id','Courier');
+            $crud->set_relation('courier_id', 'courier', '{name}', null, 'name ASC');
+            $crud->display_as('courier_id', 'Courier');
 
-            $crud->set_relation('service_id','service','{name}', null, 'name ASC');
-            $crud->display_as('service_id','Service');
+            $crud->set_relation('service_id', 'service', '{name}', null, 'name ASC');
+            $crud->display_as('service_id', 'Service');
 
-            $crud->set_relation('seller_id','seller','{name}', null, 'name ASC');
-            $crud->display_as('seller_id','Seller');
+            $crud->set_relation('seller_id', 'seller', '{name}', null, 'name ASC');
+            $crud->display_as('seller_id', 'Seller');
 
-            $crud->set_rules('spreadsheet_type_id','Spreadsheet Type',['integer', 'required']);
-            $crud->set_rules('year','Spreadsheet Year',['integer']);  // Year is not required due Amazon and purchase spreadsheets
+            $crud->set_rules('spreadsheet_type_id', 'Spreadsheet Type', ['integer', 'required']);
+            $crud->set_rules('year', 'Spreadsheet Year', ['integer']);  // Year is not required due Amazon and purchase spreadsheets
 
             $output = $crud->render();
 
@@ -983,21 +986,21 @@ class Shipeu extends MY_Controller
     }
 
     // Redirect to see spreadsheet rows
-    function redirectSpreadsheetRows($primary_key , $row)
+    function redirectSpreadsheetRows($primary_key, $row)
     {
-        return site_url('shipeu/spreadsheetRows?spreadsheetId='.$primary_key);
+        return site_url('shipeu/spreadsheetRows?spreadsheetId=' . $primary_key);
     }
 
     // Redirect to import rows
-    function redirectSpreadsheetImport($primary_key , $row)
+    function redirectSpreadsheetImport($primary_key, $row)
     {
-        return site_url('shipeu/spreadsheetImport?spreadsheetId='.$primary_key);
+        return site_url('shipeu/spreadsheetImport?spreadsheetId=' . $primary_key);
     }
 
     function spreadsheet_after_upload($uploader_response, $field_info, $files_to_upload)
     {
         $fileName = $uploader_response[0]->name;
-        $filePath = $field_info->upload_path.'/'. $fileName;
+        $filePath = $field_info->upload_path . '/' . $fileName;
 
         $this->session->set_userdata('uploaded_file_name', $fileName);
         $this->session->set_userdata('uploaded_file_path', $filePath);
@@ -1063,10 +1066,8 @@ class Shipeu extends MY_Controller
 
         $row = 1;
 
-        while (($data = fgetcsv($handle, 0, $fieldsDelimiter)) !== FALSE)
-        {
-            if($row < $initialLine)
-            {
+        while (($data = fgetcsv($handle, 0, $fieldsDelimiter)) !== FALSE) {
+            if ($row < $initialLine) {
                 $row++;
                 continue;
             }
@@ -1077,7 +1078,7 @@ class Shipeu extends MY_Controller
             ];
 
             $columnName = 'a';
-            foreach($data as $index => $value) // assumes there are as many columns as their are title columns
+            foreach ($data as $index => $value) // assumes there are as many columns as their are title columns
             {
                 // We will store numeric data using dot as decimal separator
                 $standardDecimalSeparator = '.';
@@ -1099,17 +1100,17 @@ class Shipeu extends MY_Controller
                         break;
                 }
 
-                $fields['column_'.$columnName] = $value;
+                $fields['column_' . $columnName] = $value;
                 if (strlen($columnName) == 1) {
                     if ($columnName == 'z') {
                         $columnName = 'aa';
                     } else {
-                        $columnName = chr(ord($columnName)+1);
+                        $columnName = chr(ord($columnName) + 1);
                     }
                 } else {
                     // Support for columns aa, ab, ac ...
                     $lastChar = substr($columnName, 1, 1);
-                    $nextLastChar = chr(ord($lastChar)+1);
+                    $nextLastChar = chr(ord($lastChar) + 1);
                     $columnName = 'a' . $nextLastChar;
                 }
 
@@ -1200,7 +1201,7 @@ class Shipeu extends MY_Controller
                 'column_ac',
                 'column_ad',
                 'column_ae'
-                );
+            );
 
             $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheetId);
             $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id)->result();
@@ -1318,7 +1319,7 @@ class Shipeu extends MY_Controller
         if (empty($columnName)) {
             $columnField = '';
         } else {
-            $columnField = 'column_'.$columnName;
+            $columnField = 'column_' . $columnName;
         }
 
         return $columnField;
@@ -1326,19 +1327,19 @@ class Shipeu extends MY_Controller
 
     private function importSpreadsheetFees($spreadsheetId)
     {
-        // Delete previously imported data
-        $this->db->query("DELETE FROM fee WHERE id IN (SELECT fee_id FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
-        $this->db->query("DELETE FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
-
         // Load spreadsheet and their profile
         $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
         $spreadsheetProfile = $this->getSpreadsheetProfile($spreadsheet->id);
+
+        // Delete previously imported data
+        $this->db->query("DELETE FROM fee WHERE id IN (SELECT fee_id FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
+        $this->db->query("DELETE FROM fee_range WHERE spreadsheet_id = $spreadsheetId)");
 
         // Load column Types
         $weightColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'weight');
         $feeTypeColumn = $this->getSpreadsheetTypeColumn($spreadsheet, 'fee');
 
-        $feeTypeShippingFee =  $this->db->query("SELECT * FROM fee_type WHERE name = 'Shipping Fee'")->row();
+        $feeTypeShippingFee = $this->db->query("SELECT * FROM fee_type WHERE name = 'Shipping Fee'")->row();
 
         $spreadsheetProfileColumns = $this->db->query("SELECT * FROM spreadsheet_profile_column WHERE spreadsheet_profile_id = " . $spreadsheetProfile->id .
             " AND spreadsheet_type_column_id = " . $feeTypeColumn->id . " ORDER BY zone_id")->result();
@@ -1349,7 +1350,7 @@ class Shipeu extends MY_Controller
             $this->db->query($insertFee);
             $feeId = $this->db->insert_id();
             $zoneColumnName = $spreadsheetProfileColumn->spreadsheet_column_name;
-            $zoneColumnField = 'column_'.$zoneColumnName;
+            $zoneColumnField = 'column_' . $zoneColumnName;
 
             $spreadsheetRows = $this->db->query("SELECT * FROM spreadsheet_row WHERE spreadsheet_id = " . $spreadsheetId . " ORDER BY row_number")->result();
             $minWeight = 0;
@@ -1371,10 +1372,9 @@ class Shipeu extends MY_Controller
     {
         // Load spreadsheet
         $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
-        if ($spreadsheet->imported == 1) {
-            $this->session->set_flashdata('error', 'This spreadsheet was already imported');
-            redirect('shipeu/spreadsheets');
-        }
+
+        // Delete previously imported data
+        $this->db->query("DELETE FROM zone_item WHERE spreadsheet_id = $spreadsheetId)");
 
         // Load column types
         $zoneColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'zone');
@@ -1403,11 +1403,12 @@ class Shipeu extends MY_Controller
 
             $country = $this->db->query("SELECT * FROM country WHERE code = '$countryCode'")->row();
             $countryId = $country->id;
-            if (empty($state)) {
+            if (empty($stateName)) {
                 $stateId = "NULL";
             } else {
                 $state = $this->db->query("SELECT * FROM state WHERE name = '$stateName' AND country_id = $countryId")->row();
                 if (empty($state)) {
+                    $countryName = $country->name;
                     $this->session->set_flashdata('error', "No state with name '$stateName' was found on country '$countryName'");
                     redirect('shipeu/spreadsheets');
                 } else {
@@ -1426,13 +1427,13 @@ class Shipeu extends MY_Controller
                     $postcodeTo = str_replace('X', '9', $postcodes);
                 } else {
                     // Range format: 12000 - 12999
-                    $postcodeFrom = substr($postcodes, 0, $separator -1);
+                    $postcodeFrom = substr($postcodes, 0, $separator - 1);
                     $postcodeTo = substr($postcodes, $separator);
                 }
             }
 
             $zoneId = $zone->id;
-            $insertZoneItem = "INSERT INTO zone_item (zone_id, state_id, country_id, postcode_from, postcode_to) VALUES ($zoneId, $stateId, $countryId, '$postcodeFrom', '$postcodeTo')";
+            $insertZoneItem = "INSERT INTO zone_item (zone_id, state_id, country_id, postcode_from, postcode_to, spreadsheet_id) VALUES ($zoneId, $stateId, $countryId, '$postcodeFrom', '$postcodeTo', $spreadsheetId)";
             $this->db->query($insertZoneItem);
         }
 
@@ -1440,30 +1441,255 @@ class Shipeu extends MY_Controller
         $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
 
         // Redirect
-        redirect('shipeu/deliveryCosts');
+        redirect('shipeu/zoneItems');
     }
 
     private function importSpreadsheetAmazonSells($spreadsheetId)
     {
         // Load spreadsheet
         $spreadsheet = $this->db->query("SELECT * FROM spreadsheet WHERE id = " . $spreadsheetId)->row();
-        if ($spreadsheet->imported == 1) {
-            throw new Exception("This spreadsheet was already imported");
+        if (empty($spreadsheet->seller_id)) {
+            $this->session->set_flashdata('error', "No seller was selected for this spreadsheet");
+            redirect('shipeu/spreadsheets');
         }
+        $sellerId = $spreadsheet->seller_id;
+
+        // Delete previously imported data
+        $this->db->query("DELETE FROM sales WHERE spreadsheet_id = $spreadsheetId)");
 
         // Load column types
-        $zoneColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'zone');
-        $countryColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'country');
-        $postcodesColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'postcodes');
-        $statesColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'state');
-        $cityColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'city');
+        $orderIdColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'order-id');
+        $orderItemIdColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'order-item-id');
+        $purchaseDateColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'purchase-date');
+        $paymentsDateColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'payments-date');
+        $buyerEmailColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'buyer-email');
+        $buyerNameColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'buyer-name');
+        $buyerPhoneNumberColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'buyer-phone-number');
+        $skuColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'sku');
+        $productNameColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'product-name');
+        $quantityPurchasedColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'quantity-purchased');
+        $quantityShippedColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'quantity-shipped');
+        $shipServiceLevelColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-service-level');
+        $recipientNameColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'recipient-name');
+        $shipAddress1ColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-address-1');
+        $shipAddress2ColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-address-2');
+        $shipAddress3ColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-address-3');
+        $shipCityColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-city');
+        $shipStateColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-state');
+        $shipPostalCodeColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-postal-code');
+        $shipCountryColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'ship-country');
+        $giftWrapTypeColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'gift-wrap-type');
+        $giftMessageTextColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'gift-message-text');
+        $salesChannelColumnField = $this->getSpreadsheetColumnField($spreadsheet, 'sales-channel');
 
+        $spreadsheetRows = $this->db->query("SELECT * FROM spreadsheet_row WHERE spreadsheet_id = " . $spreadsheetId . " ORDER BY row_number")->result();
+        foreach ($spreadsheetRows as $spreadsheetRow) {
+
+            // Load values
+            $orderId = empty($orderIdColumnField) ? '' : $spreadsheetRow->$orderIdColumnField;
+            $orderItemId = empty($orderItemIdColumnField) ? '' : $spreadsheetRow->$orderItemIdColumnField;
+            $purchaseDate = empty($purchaseDateColumnField) ? '' : $spreadsheetRow->$purchaseDateColumnField;
+            $paymentsDate = empty($paymentsDateColumnField) ? '' : $spreadsheetRow->$paymentsDateColumnField;
+            $buyerEmail = empty($buyerEmailColumnField) ? '' : $spreadsheetRow->$buyerEmailColumnField;
+            $buyerName = empty($buyerNameColumnField) ? '' : $spreadsheetRow->$buyerNameColumnField;
+            $buyerPhoneNumber = empty($buyerPhoneNumberColumnField) ? '' : $spreadsheetRow->$buyerPhoneNumberColumnField;
+            $sku = empty($skuColumnField) ? '' : $spreadsheetRow->$skuColumnField;
+            $productName = empty($productNameColumnField) ? '' : $spreadsheetRow->$productNameColumnField;
+            $quantityPurchased = empty($quantityPurchasedColumnField) ? '' : $spreadsheetRow->$quantityPurchasedColumnField;
+            $quantityShipped = empty($quantityShippedColumnField) ? '' : $spreadsheetRow->$quantityShippedColumnField;
+            $shipServiceLevel = empty($shipServiceLevelColumnField) ? '' : $spreadsheetRow->$shipServiceLevelColumnField;
+            $recipientName = empty($recipientNameColumnField) ? '' : $spreadsheetRow->$recipientNameColumnField;
+            $shipAddress1 = empty($shipAddress1ColumnField) ? '' : $spreadsheetRow->$shipAddress1ColumnField;
+            $shipAddress2 = empty($shipAddress2ColumnField) ? '' : $spreadsheetRow->$shipAddress2ColumnField;
+            $shipAddress3 = empty($shipAddress3ColumnField) ? '' : $spreadsheetRow->$shipAddress3ColumnField;
+            $shipCity = empty($shipCityColumnField) ? '' : $spreadsheetRow->$shipCityColumnField;
+            $shipState = empty($shipStateColumnField) ? '' : $spreadsheetRow->$shipStateColumnField;
+            $shipPostalCode = empty($shipPostalCodeColumnField) ? '' : $spreadsheetRow->$shipPostalCodeColumnField;
+            $shipCountry = empty($shipCountryColumnField) ? '' : $spreadsheetRow->$shipCountryColumnField;
+            $giftWrapType = empty($giftWrapTypeColumnField) ? '' : $spreadsheetRow->$giftWrapTypeColumnField;
+            $giftMessageText = empty($giftMessageTextColumnField) ? '' : $spreadsheetRow->$giftMessageTextColumnField;
+            $salesChannel = empty($salesChannelColumnField) ? '' : $spreadsheetRow->$salesChannelColumnField;
+
+            // Convert Amazon spreadsheet values to variables to be used on customer or sale
+            $groupId = 3;
+            $groupName = "customer";
+            $customerGroupId = 1;
+            $customerGroupName = "General";
+            $name = $buyerName;
+            $company = $buyerName;
+            $vatNo = '';
+            $address = $shipAddress1 . ' ' . $shipAddress2 . ' ' . $shipAddress3;
+            $city = $shipCity;
+            $state = $shipState;
+            $postalCode = $shipPostalCode;
+            $country = $shipCountry;
+            $phone = $buyerPhoneNumber;
+            $email = $buyerEmail;
+            $cf1 = '';
+            $cf2 = '';
+            $cf3 = '';
+            $cf4 = '';
+            $cf5 = '';
+            $cf6 = '';
+            $invoiceFooter = '';
+            $paymentTerm = 0;
+            $logo = '';
+            $awardPoints = 0;
+
+            // Check if customer exists (by email)
+            $customer = $this->db->query("SELECT * FROM companies WHERE email = '$email'")->row();
+            if (empty($customer)) {
+                // Create customer with *basic* data (only required fields)
+                // We will update their data out of this if (for already existent customers)
+
+                $this->db->query("INSERT INTO companies (
+                    group_name
+                    name
+                    company
+                    address
+                    city
+                    state
+                    phone
+                    email
+                    invoice_footer
+                ) VALUES (
+                    '$groupName',
+                    '$name',
+                    '$company',
+                    '$address',
+                    '$city',
+                    '$state',
+                    '$phone',
+                    '$email',
+                    '',
+                );");
+
+                // Load created customer
+                $customerId = $this->db->insert_id();
+                $customer = $this->db->query("SELECT * FROM companies WHERE id = $customerId")->row();
+            }
+
+            $customerId = $customer->id;
+            $customerName = $customer->name;
+
+            // Update customer information
+            $this->db->query("UPDATE companies SET
+                group_id = '$groupId',
+                group_name = '$groupName',
+                customer_group_id = '$customerGroupId',
+                customer_group_name = '$customerGroupName',
+                name = '$name',
+                company = '$company',
+                vat_no = '$vatNo',
+                address = '$address',
+                city = '$city',
+                state = '$state',
+                postal_code = '$postalCode',
+                country = '$country',
+                phone = '$phone',
+                email = '$email',
+                cf1 = '$cf1',
+                cf2 = '$cf2',
+                cf3 = '$cf3',
+                cf4 = '$cf4',
+                cf5 = '$cf5',
+                cf6 = '$cf6',
+                invoice_footer = '$invoiceFooter',
+                payment_term = '$paymentTerm',
+                logo = '$logo',
+                award_points = '$awardPoints',
+                seller_id = $sellerId
+            WHERE id = $customerId");
+
+            // Check if there are a sale for that customer and OrderId
+            $sale = $this->db->query("SELECT * FROM sales WHERE customerId = $customerId AND reference_number = '$orderId'")->row();
+            if (empty($sale)) {
+                $seller = $this->db->query("SELECT * FROM seller WHERE id = $sellerId")->row();
+                $billerId = $seller->biller_company_id;
+                $biller = $this->db->query("SELECT * FROM companies WHERE id = $billerId")->row();
+                $billerName = $biller->name;
+
+                // Total will be updated at the end of the process
+                $total = 0;
+
+                // Insert sale (only required data or data we provide information)
+                $this->db->query("INSERT INTO sales (
+                    `date`,
+                    `reference_no`,
+                    `customer_id`,
+                    `customer`,
+                    `biller_id`,
+                    `biller`,
+                    `note`,
+                    `total`,
+                    `grand_total`,
+                    `paid`,
+                    `service_id`,
+                    `spreadsheet_id`,
+                    `seller_id`
+                ) VALUES (
+                    '$purchaseDate',
+                    '$orderId',
+                    '$customerId',
+                    '$customerName',
+                    '$billerId',
+                    '$billerName',
+                    '$giftWrapType $giftMessageText $salesChannel',
+                    '$total',
+                    '$total',
+                    '$total',
+                     NULL,
+                     $spreadsheetId,
+                     $sellerId
+                );");
+
+                $saleId = $this->db->insert_id();
+                $sale = $this->db->query("SELECT * FROM sales WHERE id = $saleId")->row();
+            }
+
+            // Search product
+            $product = $this->db->query("SELECT * FROM products WHERE seller_id = $sellerId AND code = '$sku'")->row();
+            if (empty($product)) {
+                $this->session->set_flashdata('error', "No product with code '$sku' was found on list of products for this seller");
+                redirect('shipeu/spreadsheets');
+            }
+            $productId = $product->id;
+            $productName = $product->name;
+            $netUnitPrice = $product->price;
+            $subtotal = $product->price * $quantityPurchased;
+
+            // Insert sale item
+            $this->db->query("INSERT INTO sale_items (
+                `sale_id`,
+                `product_id`,
+                `product_code`,
+                `product_name`,
+                `net_unit_price`,
+                `quantity`,
+                `subtotal`
+            ) VALUES (
+                $saleId,
+                $productId,
+                '$sku',
+                '$productName',
+                '$netUnitPrice',
+                '$quantityPurchased',
+                '$subtotal'
+            ");
+
+            // Increment Sale total
+            $this->db->query("UPDATE sales SET
+                total = total + $subtotal,
+                grand_total = grand_total + $subtotal,
+                paid = paid + $subtotal
+            WHERE id = $saleId");
+        }
 
         // Mark spreadsheet as imported
         $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
 
         // Redirect
-        redirect('shipeu/deliveryCosts');
+        redirect('shipeu/sales');
     }
 
     public function shipments()
@@ -1486,8 +1712,8 @@ class Shipeu extends MY_Controller
             $crud->unset_delete();
             $crud->unset_edit();
 
-            $crud->add_action('Config Fees', '', '','ui-icon-info', array($this,'redirectShipmentFees'));
-            $crud->add_action('Packages', '', '','ui-icon-info', array($this,'redirectShipmentPackages'));
+            $crud->add_action('Config Fees', '', '', 'ui-icon-info', array($this, 'redirectShipmentFees'));
+            $crud->add_action('Packages', '', '', 'ui-icon-info', array($this, 'redirectShipmentPackages'));
 
             $crud->set_relation('supplier_id', 'companies', '{name}');
             $crud->display_as('supplier_id', 'Seller');
@@ -1501,14 +1727,14 @@ class Shipeu extends MY_Controller
         }
     }
 
-    function redirectShipmentFees($primary_key , $row)
+    function redirectShipmentFees($primary_key, $row)
     {
-        return site_url('shipeu/shipmentFees').'?purchaseId=' . $primary_key;
+        return site_url('shipeu/shipmentFees') . '?purchaseId=' . $primary_key;
     }
 
-    function redirectShipmentPackages($primary_key , $row)
+    function redirectShipmentPackages($primary_key, $row)
     {
-        return site_url('shipeu/shipmentPackages').'?purchaseId=' . $primary_key;
+        return site_url('shipeu/shipmentPackages') . '?purchaseId=' . $primary_key;
     }
 
     public function shipmentFees()
@@ -1531,13 +1757,13 @@ class Shipeu extends MY_Controller
             $crud->field_type('purchase_id', 'hidden');
             $crud->field_type('fee', 'hidden');
 
-            $crud->set_relation('fee_type_id','fee_type','{name}', null, 'name ASC');
-            $crud->display_as('fee_type_id','Fee Type');
+            $crud->set_relation('fee_type_id', 'fee_type', '{name}', null, 'name ASC');
+            $crud->display_as('fee_type_id', 'Fee Type');
 
-            $crud->field_type('apply', 'dropdown', [ '1' => 'Yes', '2' => 'No' ]);
+            $crud->field_type('apply', 'dropdown', ['1' => 'Yes', '2' => 'No']);
             $crud->display_as('apply', 'Apply');
 
-            $crud->callback_before_insert(array($this,'shipment_fee_before_insert'));
+            $crud->callback_before_insert(array($this, 'shipment_fee_before_insert'));
 
             if (isset($_GET)) {
                 if (isset($_GET['purchaseId'])) {
@@ -1620,13 +1846,13 @@ class Shipeu extends MY_Controller
             $crud->field_type('unit_cost', 'hidden');
             $crud->field_type('total_cost', 'hidden');
 
-            $crud->set_relation('package_id','package','{code_1}', null, 'code_1 ASC');
-            $crud->display_as('package_id','Package');
+            $crud->set_relation('package_id', 'package', '{code_1}', null, 'code_1 ASC');
+            $crud->display_as('package_id', 'Package');
 
-            $crud->set_rules('quantity','Quantity',['integer', 'required']);
+            $crud->set_rules('quantity', 'Quantity', ['integer', 'required']);
             $crud->display_as('quantity', 'Quantity');
 
-            $crud->callback_before_insert(array($this,'shipment_package_before_insert'));
+            $crud->callback_before_insert(array($this, 'shipment_package_before_insert'));
 
             // Set purchaseId as hidden field (from session)
             $userData = $this->session->get_userdata();

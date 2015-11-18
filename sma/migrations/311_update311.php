@@ -15,7 +15,17 @@ class Migration_Update311 extends CI_Migration
             'sequence' => 6,
         ]);
 
+        // Our table seller should have relations with other SMA tables
         $this->dbforge->add_column('seller', ["email varchar(100) NULL AFTER country_id", "biller_company_id int NULL", "supplier_company_id int NULL"]);
+
+        // We indicate from which spreadsheet a sale was loaded and the seller
+        $this->dbforge->add_column('sales', ["spreadsheet_id int NULL", "seller_id int NULL"]);
+
+        // Companies table is used by SMA to store the customers, we segment customers per seller
+        $this->dbforge->add_column('companies', ["seller_id int NULL"]);
+
+        // Products table also needs a seller_id to segment products per seller
+        $this->dbforge->add_column('products', ["seller_id int NULL"]);
 
         $this->dbforge->drop_column('package', "sell_price");
 
