@@ -1015,6 +1015,7 @@ class Shipeu extends MY_Controller
         // Validate if there are a profile defined for this spreadsheet (with this configuration)
         $spreadsheetProfile = $this->getSpreadsheetProfile($post_array);
         if (empty($spreadsheetProfile)) {
+            $this->session->set_flashdata('error', "Before import this spreadsheet, please create a configuration for this spreadsheet type and source entity (courier/seller/etc)");
             return false;
         }
 
@@ -1261,6 +1262,13 @@ class Shipeu extends MY_Controller
             $sellerId = empty($spreadsheet->seller_id) ? 0 : $spreadsheet->seller_id;
         }
 
+        // Amazon spreadsheet type is the same for all sellers,
+        // we don't need a per-seller configuration in this case
+        $spreadsheetType = $this->db->query("SELECT * FROM spreadsheet_type WHERE id = $spreadsheetTypeId")->row();
+        if ($spreadsheetType->code == "amazon-sells") {
+            $sellerId = 0;
+        }
+
         $spreadsheetProfile = $this->db->query("SELECT * FROM spreadsheet_profile WHERE spreadsheet_type_id = " . $spreadsheetTypeId .
             " AND IFNULL(courier_id, 0) = " . $courierId .
             " AND IFNULL(service_id, 0) = " . $serviceId .
@@ -1488,8 +1496,8 @@ class Shipeu extends MY_Controller
             // Load values
             $orderId = empty($orderIdColumnField) ? '' : $spreadsheetRow->$orderIdColumnField;
             $orderItemId = empty($orderItemIdColumnField) ? '' : $spreadsheetRow->$orderItemIdColumnField;
-            $purchaseDate = empty($purchaseDateColumnField) ? '' : $spreadsheetRow->$purchaseDateColumnField;
-            $paymentsDate = empty($paymentsDateColumnField) ? '' : $spreadsheetRow->$paymentsDateColumnField;
+            $purchaseDate = empty($purchaseDateColumnField) ? '' : $this->convertISODate($spreadsheetRow->$purchaseDateColumnField);
+            $paymentsDate = empty($paymentsDateColumnField) ? '' : $this->convertISODate($spreadsheetRow->$paymentsDateColumnField);
             $buyerEmail = empty($buyerEmailColumnField) ? '' : $spreadsheetRow->$buyerEmailColumnField;
             $buyerName = empty($buyerNameColumnField) ? '' : $spreadsheetRow->$buyerNameColumnField;
             $buyerPhoneNumber = empty($buyerPhoneNumberColumnField) ? '' : $spreadsheetRow->$buyerPhoneNumberColumnField;
@@ -1515,10 +1523,12 @@ class Shipeu extends MY_Controller
             $groupName = "customer";
             $customerGroupId = 1;
             $customerGroupName = "General";
-            $name = $buyerName;
+            $name = $recipientName;
             $company = $buyerName;
             $vatNo = '';
-            $address = $shipAddress1 . ' ' . $shipAddress2 . ' ' . $shipAddress3;
+            $address = $shipAddress1 .
+                empty($shipAddress2) ? '' : "\n$shipAddress2" .
+                empty($shipAddress3) ? '' : "\n$shipAddress3";
             $city = $shipCity;
             $state = $shipState;
             $postalCode = $shipPostalCode;
@@ -1541,16 +1551,15 @@ class Shipeu extends MY_Controller
             if (empty($customer)) {
                 // Create customer with *basic* data (only required fields)
                 // We will update their data out of this if (for already existent customers)
-
-                $this->db->query("INSERT INTO companies (
-                    group_name
-                    name
-                    company
-                    address
-                    city
-                    state
-                    phone
-                    email
+                $sql = "INSERT INTO companies (
+                    group_name,
+                    name,
+                    company,
+                    address,
+                    city,
+                    state,
+                    phone,
+                    email,
                     invoice_footer
                 ) VALUES (
                     '$groupName',
@@ -1561,11 +1570,18 @@ class Shipeu extends MY_Controller
                     '$state',
                     '$phone',
                     '$email',
-                    '',
-                );");
+                    ''
+                );";
+
+                $sql = str_replace("\n", "", $sql);
+                $this->db->query($sql);
 
                 // Load created customer
                 $customerId = $this->db->insert_id();
+                if ($customerId == 0) {
+                    $this->session->set_flashdata('error', "Creation of customer '$name' has failed (order item id is $orderItemId)");
+                    redirect('shipeu/spreadsheets');
+                }
                 $customer = $this->db->query("SELECT * FROM companies WHERE id = $customerId")->row();
             }
 
@@ -1602,12 +1618,12 @@ class Shipeu extends MY_Controller
             WHERE id = $customerId");
 
             // Check if there are a sale for that customer and OrderId
-            $sale = $this->db->query("SELECT * FROM sales WHERE customerId = $customerId AND reference_number = '$orderId'")->row();
+            $sale = $this->db->query("SELECT * FROM sales WHERE customer_id = $customerId AND reference_no = '$orderId'")->row();
             if (empty($sale)) {
                 $seller = $this->db->query("SELECT * FROM seller WHERE id = $sellerId")->row();
                 $billerId = $seller->biller_company_id;
                 $biller = $this->db->query("SELECT * FROM companies WHERE id = $billerId")->row();
-                $billerName = $biller->name;
+                $billerName = $biller->company;
 
                 // Total will be updated at the end of the process
                 $total = 0;
@@ -1644,8 +1660,13 @@ class Shipeu extends MY_Controller
                 );");
 
                 $saleId = $this->db->insert_id();
+                if ($saleId == 0) {
+                    $this->session->set_flashdata('error', "Creation of sale #$orderId has failed");
+                    redirect('shipeu/spreadsheets');
+                }
                 $sale = $this->db->query("SELECT * FROM sales WHERE id = $saleId")->row();
             }
+            $saleId = $sale->id;
 
             // Search product
             $product = $this->db->query("SELECT * FROM products WHERE seller_id = $sellerId AND code = '$sku'")->row();
@@ -1659,7 +1680,7 @@ class Shipeu extends MY_Controller
             $subtotal = $product->price * $quantityPurchased;
 
             // Insert sale item
-            $this->db->query("INSERT INTO sale_items (
+            $sql = "INSERT INTO sale_items (
                 `sale_id`,
                 `product_id`,
                 `product_code`,
@@ -1675,7 +1696,14 @@ class Shipeu extends MY_Controller
                 '$netUnitPrice',
                 '$quantityPurchased',
                 '$subtotal'
-            ");
+            )";
+            $this->db->query($sql);
+
+            $saleItemId = $this->db->insert_id();
+            if ($saleItemId == 0) {
+                $this->session->set_flashdata('error', "Creation of sale item #$orderItemId has failed");
+                redirect('shipeu/spreadsheets');
+            }
 
             // Increment Sale total
             $this->db->query("UPDATE sales SET
@@ -1689,7 +1717,17 @@ class Shipeu extends MY_Controller
         $this->db->query("UPDATE spreadsheet SET imported = 1 WHERE id = " . $spreadsheetId);
 
         // Redirect
+        $this->session->set_flashdata('success', "Spreadsheet imported");
         redirect('shipeu/sales');
+    }
+
+    private function convertISODate($isoDate)
+    {
+        $timestamp = strtotime($isoDate);
+        $datetime = new DateTime("@$timestamp");
+        $date =  $datetime->format('Y-m-d H:i:s');
+
+        return $date;
     }
 
     public function shipments()
