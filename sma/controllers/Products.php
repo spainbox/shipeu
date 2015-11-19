@@ -530,6 +530,7 @@ class Products extends MY_Controller
                 'cf4' => $this->input->post('cf4'),
                 'cf5' => $this->input->post('cf5'),
                 'cf6' => $this->input->post('cf6'),
+                'seller_id' => $this->input->post('seller_id'),
             );
             $this->load->library('upload');
             if ($this->input->post('type') == 'standard') {
@@ -889,6 +890,7 @@ class Products extends MY_Controller
                 'cf4' => $this->input->post('cf4'),
                 'cf5' => $this->input->post('cf5'),
                 'cf6' => $this->input->post('cf6'),
+                'seller_id' => $this->input->post('seller_id'),
             );
             $this->load->library('upload');
             if ($this->input->post('type') == 'standard') {

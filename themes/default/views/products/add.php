@@ -340,6 +340,7 @@ if (!empty($variants)) {
                                value="" <?= isset($_POST['cf']) ? 'checked="checked"' : '' ?>/><label for="extras"
                                                                                                       class="padding05"><?= lang('custom_fields') ?></label>
                     </div>
+
                     <div class="row" id="extras-con" style="display: none;">
 
                         <div class="col-md-4">
@@ -400,6 +401,18 @@ if (!empty($variants)) {
                     <div class="form-group all">
                         <?= lang("product_details_for_invoice", "details") ?>
                         <?= form_textarea('details', (isset($_POST['details']) ? $_POST['details'] : ($product ? $product->details : '')), 'class="form-control" id="details"'); ?>
+                    </div>
+
+                    <div class="form-group all">
+                        <?php echo 'Seller'; ?>
+                        <?php
+                            $sellerOptions[''] = '';
+                            $sellers=$this->db->query("SELECT id, name FROM seller")->result();
+                            foreach ($sellers as $seller) {
+                                $sellerOptions[$seller->id] = $seller->name;
+                            }
+                        ?>
+                        <?= form_dropdown('seller_id', $sellerOptions, (isset($_POST['seller_id']) ? $_POST['seller_id'] : ($product ? $product->seller_id : '')), 'class="form-control input-tip select" id="seller_id"') ?>
                     </div>
 
                     <div class="form-group">

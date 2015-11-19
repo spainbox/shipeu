@@ -412,6 +412,18 @@ if (!empty($variants)) {
                         <?= form_textarea('details', (isset($_POST['details']) ? $_POST['details'] : ($product ? $product->details : '')), 'class="form-control" id="details"'); ?>
                     </div>
 
+                    <div class="form-group all">
+                        <?php echo 'Seller'; ?>
+                        <?php
+                            $sellerOptions[''] = '';
+                            $sellers=$this->db->query("SELECT id, name FROM seller")->result();
+                            foreach ($sellers as $seller) {
+                                $sellerOptions[$seller->id] = $seller->name;
+                            }
+                        ?>
+                        <?= form_dropdown('seller_id', $sellerOptions, (isset($_POST['seller_id']) ? $_POST['seller_id'] : ($product ? $product->seller_id : '')), 'class="form-control input-tip select" id="seller_id"') ?>
+                    </div>
+
                     <div class="form-group">
                         <?php echo form_submit('edit_product', $this->lang->line("edit_product"), 'class="btn btn-primary"'); ?>
                     </div>
